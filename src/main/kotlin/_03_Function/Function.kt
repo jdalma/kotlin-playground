@@ -1,5 +1,7 @@
 package _03_Function
 
+import java.lang.StringBuilder
+
 class Function {
 
     companion object {
@@ -131,5 +133,37 @@ class Function {
         fun d(x: Int, y: Int) = { x: Int -> x + y }
         fun e(x: Int, y: Int) = { x: Int, y: Int -> x + y }
         fun f(x: Int, y: Int) = { x + y }
+
+        /**
+         * 디폴트 파라미터
+         */
+        fun joinToString(
+            array: Array<String> = arrayOf("a","e","i","o","u"),
+            delimiter: String = ",",
+            prefix: String = "Start-",
+            postfix: String = "-End"
+        ): String {
+            if (array.isEmpty()) return prefix + postfix
+
+            var str = prefix + array[0]
+
+            for (i in 1 until (array.size)) {
+                str += delimiter +  array[i]
+            }
+
+            return str + postfix
+        }
+
+        /**
+         * 가변 인자와 스프레드 연산자
+         * vararg 파라미터는 단 하나만 존재할 수 있으며, 아무 위치에나 작성해도 되지만 보통 마지막에 작성한다.
+         */
+        fun sumString(vararg str: String) : String {
+            val sb = StringBuilder()
+            str.forEach {
+                sb.append(it)
+            }
+            return sb.toString()
+        }
     }
 }

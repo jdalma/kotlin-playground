@@ -61,4 +61,58 @@ class FunctionTest: DescribeSpec({
         lambdaF() shouldBe 3
     }
 
+    describe("joinToString 함수는") {
+
+        context("구분자는 [,]를 사용하고 접두사는 [Start-], 접미사는 [-End]일 때") {
+            val delimiter = ","
+            val prefix = "Start-"
+            val postfix = "-End"
+            var array = arrayOf("첫 번째", "두 번째", "세 번째")
+
+            it("문자열을 가공하여 반환한다.") {
+                Function.joinToString(
+                    array,
+                    delimiter,
+                    prefix,
+                    postfix
+                )  shouldBe "Start-첫 번째,두 번째,세 번째-End"
+            }
+        }
+
+        context("파라미터를 모두 전달하지 않는다면") {
+            it("디폴트 파라미터가 사용된다.") {
+                Function.joinToString() shouldBe "Start-a,e,i,o,u-End"
+            }
+        }
+
+        context("파라미터를 지정해준다면") {
+            val prefix = "["
+            val postfix = "]"
+            it("지정된 파라미터만 적용한다.") {
+                Function.joinToString(
+                    prefix = prefix,
+                    postfix = postfix
+                ) shouldBe "[a,e,i,o,u]"
+            }
+        }
+    }
+
+    describe("sumString 함수는") {
+        context("문자열 파라미터를 여러 개 전달하면") {
+            val a = "a"
+            val b = "b"
+            val c = "c"
+            it("누적하여 반환한다.") {
+                Function.sumString(a,b,c) shouldBe "abc"
+            }
+        }
+
+        context("문자열 배열을 한 번에 전달하면") {
+            val strings = arrayOf("a","b","c")
+            it("누적하여 반환한다.") {
+                Function.sumString(*strings) shouldBe "abc"
+            }
+        }
+    }
+
 })
