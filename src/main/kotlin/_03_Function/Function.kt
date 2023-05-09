@@ -99,5 +99,25 @@ class Function {
         // 블록 본문 익명 함수
         val example3_2 : (Int, String) -> String = fun(i , s) : String { return "$i : $s" }
 
+        /**
+         * 고차함수의 복잡한 문제
+         * 이 함수가 하는 일은
+         * 1. 인자가 0이면 내부에 저장된 값을 반환한다.
+         * 2. 인자가 0이 아니면 내부에 저장된 값을 인자값으로 바꾼다.
+         * 이때 기존에 저장되어 있던 값을 외부에 돌려준다.
+         */
+        fun state(param: Int) : (Int) -> Int {
+            var memory = param
+            return { param2 ->
+                when (param2) {
+                    0 -> memory
+                    else -> {
+                        val tmp = memory
+                        memory = param2
+                        tmp
+                    }
+                }
+            }
+        }
     }
 }
