@@ -33,7 +33,7 @@ class FunctionTest: DescribeSpec({
         Function.called shouldBe 36
     }
 
-    describe("고차함수의 Name Shadowing") {
+    describe("고차함수의 클로저") {
         val func = Function.state(10)
         // 이 시점엔 Function.state가 끝났으므로 state 내부 지역 변수 var memory는 더 이상 스택에 존재하지 않는다.
         // 컴파일러는 반환된 람다를 나중에 호출해도 아무 문제가 없도록, 람다가 참조하는 람다 밖에 정의된 변숫값들을 포함한 데이터 구조를 힙에 저장한다.
@@ -44,4 +44,21 @@ class FunctionTest: DescribeSpec({
         func(10) shouldBe 2
         func(0) shouldBe 10
     }
+
+    describe("고차함수 예제") {
+        val lambdaA = Function.a(1)
+        val lambdaB = Function.b(1 , 2)
+        val lambdaC = Function.c(1 , 2)
+        val lambdaD = Function.d(1 , 2)
+        val lambdaE = Function.e(1 , 2)
+        val lambdaF = Function.f(1 , 2)
+
+        lambdaA(3) shouldBe 4
+        lambdaB(3) shouldBe 3
+        lambdaC(3) shouldBe 4
+        lambdaD(3) shouldBe 5
+        lambdaE(3,4) shouldBe 7
+        lambdaF() shouldBe 3
+    }
+
 })

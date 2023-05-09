@@ -119,5 +119,17 @@ class Function {
                 }
             }
         }
+
+        /**
+         * 고차함수 예제
+         */
+        fun a(y: Int) = { x: Int -> x + y }
+        fun b(x: Int, y: Int): (Int) -> Int {
+            return {it}
+        }
+        fun c(x: Int, y: Int) = { y: Int -> x + y }
+        fun d(x: Int, y: Int) = { x: Int -> x + y }
+        fun e(x: Int, y: Int) = { x: Int, y: Int -> x + y }
+        fun f(x: Int, y: Int) = { x + y }
     }
 }
