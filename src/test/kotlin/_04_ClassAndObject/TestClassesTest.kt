@@ -110,4 +110,9 @@ class ClassTest : ShouldSpec ({
             obj.value shouldBe "init"
         }
     }
+
+    context("null is T로 변수의 널 허용성을 확인할 수 있다.") {
+        val test = LateInitTest()
+        test.nullCheck() shouldBe booleanArrayOf(false,true)
+    }
 })

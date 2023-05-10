@@ -143,4 +143,13 @@ class LateInitTest {
     fun initValue() {
         value = "init"
     }
+
+    fun nullCheck() : BooleanArray {
+        val a: Int = 0
+        val b: Int? = 2
+        return booleanArrayOf(a.isNullable(), b.isNullable())
+    }
+
+    val nestedLambda : (x: (String) -> String) -> (String) -> String = { it }
+    inline fun <reified T> T.isNullable(): Boolean = null is T
 }
