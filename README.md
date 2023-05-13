@@ -166,3 +166,141 @@ Int 하나를 파라미터로 받아서 Int 타입의 결과를 내어주는 함
 2. 여러 번 호출해도 값이 달라지지 않으면 프로퍼티를 사용하고, 다른 부수 효과나 예외 가능성이 있다면 함수를 사용한다.
 3. 항상 같은 결과를 내놓더라도 계산 비용이 많이 드는 경우에는 함수를 사용해 복잡한 계산이 이뤄질 수 있음을 표현한다.
    - 결과를 캐싱할 수 있다면 프로퍼티를 사용해도 좋다.
+
+# **코틀린의 예외**
+
+코틀린에는 `Throwable` 외에 자주 볼 수 있는 몇 가지 예외 클래스가 정의돼 있다.  
+JVM에서 돌아가는 코틀린의 경우 실제로는 자바에 정의된 예외 클래스들이다.  
+
+- **Exception**
+  - `Throwable`을 상속한 클래스이며, **자바의 모든 체크 예외는 Exception의 하위 클래스여야 한다.**
+- **RuntimeException**
+  - **자바의 모든 언체크 예외는 RuntimeException의 하위 클래스여야 한다.**
+- **Error**
+  - `Throwable`을 상속한 클래스로, 심각한 문제를 표현하는 예외를 다룬다.
+  - `AssertionError`, `NotImplementedError`, `OutOfMemoryError` ...
+  
+`catch`를 써서 예외를 잡아내더라도 **프로그램 전체에서 발생한 오류를 한 군데서 잡아내기 보다는 프로그래머가 원하는 영역에서 발생한 오류를 원하는 영역 안에서 잡아낼 수 있으면 좋을 것이다.**  
+코틀린은 아쉽게도 `여러 예외를 한꺼번에 나열하는 문법을 제공하진 않는다.`  
+하지만 **예외의 타입 계층과 `is`연산을 사용하면 비슷한 결과를 얻을 수 있다.**  
+
+```kotlin
+open class CommonException(message: String) : Throwable(message)
+open class FirstLevelException1(message: String) : CommonException(message)
+class FirstLevelException2(message: String) : CommonException(message)
+class SecondLevelException(message: String) : FirstLevelException1(message)
+
+class OtherException(message: String) : Throwable(message)
+
+fun throwException(number: Int = Random.nextInt(0, 4)) {
+    when (number) {
+        0 -> throw CommonException("부모 예외 클래스")
+        1 -> throw FirstLevelException1("1레벨 자식 예외 클래스")
+        2 -> throw SecondLevelException("2레벨 자식 예외 클래스")
+        3 -> throw OtherException("그 외 예외 클래스")
+    }
+}
+
+describe("상속 관계인 예외 클래스") {
+
+    val parent = CommonException("부모 예외 클래스")
+    val child1 = FirstLevelException1("1레벨 자식 예외 클래스")
+    val child2 = SecondLevelException("2레벨 자식 예외 클래스")
+    val other = OtherException("그 외 예외 클래스")
+
+    context("자식 클래스 is 부모 클래스는 참이다.") {
+        (child1 is CommonException) shouldBe true
+        (child2 is FirstLevelException1) shouldBe true
+        (child2 is CommonException) shouldBe true
+//            (other is CommonException) shouldBe false // 컴파일 에러
+    }
+
+    context("throwException 함수는") {
+        it("난수를 기준으로 예외를 던진다.") {
+            try {
+                throwException()
+            } catch (e: Throwable) {
+                when (e) {
+                    is SecondLevelException -> println("2레벨 자식 예외 클래스")
+                    is FirstLevelException1 -> println("1레벨 자식 예외 클래스")
+                    is CommonException -> println("부모 예외 클래스")
+                }
+            } catch (_: OtherException) {
+                println("그 외 예외 클래스")
+            }
+        }
+    }
+}
+```
+  
+`if/when`을 식으로 쓰는 것과 같이 `try/catch`도 식으로 쓸 수 있다.  
+`try`에서 처리한 결과를 값으로 변수에 담고 싶거나 멤버 함수 호출을 연속적으로 사용하는 중간에 예외가 발생할 수 있는데, 이 예외를 받아서 적절한 값을 지정해주고 싶을 때 사용할 수 있다.  
+
+```kotlin
+class StringToInt(
+    val str: String
+) {
+    fun throwException() = try { str.toInt() } catch (e: NumberFormatException ) { throw e }
+    fun returnZero() = try { str.toInt() } catch (e: NumberFormatException ) { 0 }
+}
+
+describe("StringToInt 클래스는") {
+    val str = StringToInt("문자열")
+    val number = StringToInt("1234")
+
+    context("한글을 정수로 변환을 시도한다면") {
+
+        it("throwException 함수는 NumberFormatException 을 던진다.") {
+            shouldThrow<NumberFormatException> { str.throwException()  }
+        }
+
+        it("returnZero 함수는 0을 반환한다.") {
+            str.returnZero() shouldBe 0
+        }
+    }
+
+    context("숫자 문자열을 정수로 변환을 시도한다면") {
+        it("정수를 반환한다.") {
+            number.throwException() shouldBe 1234
+            number.returnZero() shouldBe 1234
+        }
+    }
+}
+```
+
+# **Nothing 이라는 특별한 타입을 왜 도입했을까?**
+
+예외가 발생했을 때 적절한 디폴트 값이 없다면 코틀린 타입 검사기가 `catch`절의 타입을 **Nothing** 타입으로 간주해 타입 검사를 통과시킨다.  
+
+```kotlin
+val throwNewException = try { str.toInt() } catch (e: NumberFormatException) { throw InputException(e) }
+val result = if(bool) 0 else throw InputException()
+
+val exception: Nothing = throw InputException()
+```
+
+`try/catch`와 `if/else`문에서 발생할 수 있는 **throw의 타입은 모든 코틀린 타입의 하위 타입이어야 한다.**  
+이런 용도를 위해 **Nothing**이라는 타입을 사용한다.  
+  
+**Nothing** 타입은 **정상적인 프로그램 흐름이 아닌 경우를 표현하는 타입**이기 때문에 `두 가지의 경우를 제외`하고는 인스턴스를 생성할 수 없다.  
+
+```kotlin
+// 첫 번째. 예외를 변수에 대입할 때 (식의 일부분으로 사용될 때)
+val exception: Nothing = throw InputException("실행하자마자 바로 예외를 던져 프로그램이 중단된다.")
+
+// 두 번째. 함수 반환 타입이 Nothing인 경우
+fun function1(): Nothing {
+    throw Throwable("반환 타입이 Nothing 일 때 throw 예외를 던지지 않으면 컴파일 에러")
+}
+fun function2(): Nothing {
+    while(true) {
+        // 무한 루프
+    }
+}
+``` 
+  
+위의 예제처럼 반환 타입이 `Nothing`이기 위해서는 `return`으로 뭔가 값을 반환하면 타입이 일치하지 않아 `throw`를 선언하거나 아예 값을 반환하지 않는 함수를 작성해야 한다.  
+하지만 위의 코드는 실행하자마자 프로그램이 종료되거나 무한 루프를 돌기 때문에 **Nothing 타입의 값을 실행 시점에 얻을 방법은 없다.**
+  
+모드 타입의 상위 타입이면서 인스턴스도 만들 수 있는 **Any**와는 `인스턴스가 존재할 수 없다는 차이점`이 있다.  
+따라서 `Nothing`은 컴파일러가 타입 검사를 할 때만 사용하는 **상징적인 타입**이라고 볼 수 있다.  
