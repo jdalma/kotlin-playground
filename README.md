@@ -1,4 +1,6 @@
 
+# [연습문제](https://github.com/jdalma/kotlin-core-programming/wiki/%EC%97%B0%EC%8A%B5-%EB%AC%B8%EC%A0%9C)
+
 # 무지 목록
 
 1. `reified`
