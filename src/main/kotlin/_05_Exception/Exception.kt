@@ -1,5 +1,6 @@
 package _05_Exception
 
+import java.io.FileWriter
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 import kotlin.random.Random
@@ -52,5 +53,39 @@ class StringToInt(
             // 무한 루프
         }
     }
+}
 
+class FinallyBlock {
+    fun func1(): String {
+        try {
+            return "try"
+        } catch (_: Throwable) {
+            return "catch"
+        } finally {
+            return "finally"
+        }
+    }
+
+    fun func2(): String {
+        try {
+            throw Throwable()
+            return "try"
+        } catch (_: Throwable) {
+            return "catch"
+        } finally {
+            return "finally"
+        }
+    }
+
+    fun func3(): String {
+        try {
+            throw Throwable()
+            return "try"
+        } catch (_: Throwable) {
+            throw Throwable()
+            return "catch"
+        } finally {
+            return "finally"
+        }
+    }
 }

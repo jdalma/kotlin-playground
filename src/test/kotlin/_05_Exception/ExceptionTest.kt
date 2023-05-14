@@ -3,6 +3,7 @@ package _05_Exception
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import java.lang.Exception
 
 class ExceptionTest: DescribeSpec ({
 
@@ -60,5 +61,13 @@ class ExceptionTest: DescribeSpec ({
         }
     }
 
+    describe("finally 블록에서 return문을 선언한다면") {
+        val exception = FinallyBlock()
+        it("다른 return문은 무시된다.") {
+            exception.func1() shouldBe "finally"
+            exception.func2() shouldBe "finally"
+            exception.func3() shouldBe "finally"
+        }
+    }
 
 })
