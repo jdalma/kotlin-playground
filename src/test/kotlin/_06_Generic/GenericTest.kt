@@ -1,6 +1,8 @@
 package _06_Generic
 
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.ints.shouldBeGreaterThan
+import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.ints.shouldBeLessThanOrEqual
 import io.kotest.matchers.shouldBe
 
@@ -59,4 +61,34 @@ class GenericTest : DescribeSpec({
         }
     }
 
+    describe("Account 클래스") {
+        val account = Account(10000.5)
+        val compare1 = Account(10001.5)
+        val compare2 = Account(10000.0)
+        context("compareTo 메서드는") {
+
+            it("비교 대상 객체의 잔액이 더 크다면 음수를 반환한다.") {
+                account.compareTo(compare1) shouldBeLessThan 0
+            }
+
+            it("비교 대상 객체의 잔액이 더 작다면 양수를 반환한다.") {
+                account.compareTo(compare2) shouldBeGreaterThan 0
+            }
+        }
+    }
+
+    describe("copyWhenGenerator 함수는") {
+        val param1 = listOf("a", "b", "c", "d") to "b"
+        val param2 = listOf(
+                StringBuilder("A"),
+                StringBuilder("B"),
+                StringBuilder("C")
+        ) to StringBuilder("B")
+
+        context("threshold 보다 큰 값만 반환한다.") {
+
+            copyWhenGenerator(param1.first, param1.second) shouldBe listOf("c" , "d")
+            copyWhenGenerator(param2.first, param2.second) shouldBe listOf("C")
+        }
+    }
 })
