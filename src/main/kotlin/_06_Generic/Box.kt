@@ -44,3 +44,34 @@ class Triple<F, S, T>(
         return result
     }
 }
+
+class OutBox<T: Number>(private val v: T) {
+    fun get(): T = v
+}
+
+class OutBox_공변<out T: Number>(private val v: T) {
+    fun get(): T = v
+}
+
+class InBox<T: Number>(private var v: T) {
+    fun set(v: T) {
+        this.v = v
+    }
+}
+
+class InBox_반공변<in T: Number>(private var v: T) {
+    fun set(v: T) {
+        this.v = v
+    }
+    override fun toString(): String {
+        return "InBox_반공변(v=$v)"
+    }
+
+}
+
+class InOutBox<T: Number>(private var v: T) {
+    fun set(v: T) {
+        this.v = v
+    }
+    fun get(): T = v
+}

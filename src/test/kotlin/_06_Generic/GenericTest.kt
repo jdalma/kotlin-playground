@@ -91,4 +91,60 @@ class GenericTest : DescribeSpec({
             copyWhenGenerator(param2.first, param2.second) shouldBe listOf("C")
         }
     }
+
+    describe("OutBox<T: Number>") {
+        it("제네릭 타입 Int와 Number의 관계는 성립되지 않는다.") {
+            val intOutBox = OutBox<Int>(10)
+            val numberOutBox = OutBox<Number>(10.0)
+
+//            val unknownBox1: OutBox<Number> = intOutBox // 컴파일 에러
+//            unknownBox1.get() shouldBe 10 // get()을 통해 값을 꺼내 업캐스팅이 되므로 여기서는 컴파일 에러가 나지 않는다.
+
+            val unknownBox2: OutBox<Number> = numberOutBox
+            unknownBox2.get() shouldBe 10.0
+
+        }
+    }
+
+    describe("OutBox2<out T: Number>") {
+        it("공변 (제네릭 타입의 상하위 타입 관계를 추론하게끔)") {
+            val intOutBox = OutBox_공변<Int>(10)
+            val numberOutBox = OutBox_공변<Number>(10.0)
+
+            val unknownBox1: OutBox_공변<Number> = intOutBox
+            unknownBox1.get() shouldBe 10
+
+            var unknownBox2: OutBox_공변<Number> = numberOutBox
+            unknownBox2.get() shouldBe 10.0
+        }
+    }
+
+    describe("InBox<T: Number>") {
+        it("제네릭 타입 Int와 Number의 관계는 성립되지 않는다.") {
+            val intInBox = InBox<Int>(10)
+            val numberInBox = InBox<Number>(10.0)
+
+//            val unknownBox1: InBox<Number> = intInBox // 컴파일 에러
+//            unknownBox1.set(10.0) // 업 캐스팅이 자동으로 되므로 컴파일 에러가 나지 않는다.
+
+            val unknownBox2: InBox<Number> = numberInBox
+            unknownBox2.set(10.0)
+
+            val unknownBox3: InBox<Int> = intInBox
+            unknownBox3.set(10)
+
+//            val unknownBox4: InBox<Int> = numberInBox // 컴파일 에러
+//            unknownBox3.set(10)
+        }
+    }
+
+    describe("InBox_반공변<T: Number>") {
+        it("Number 제네릭 타입을 Int 타입으로 변환할 수 있다.") {
+            val intInBox = InBox_반공변<Int>(10)
+            val numberInBox = InBox_반공변<Number>(10.0)
+
+            val unknownBox: InBox_반공변<Int> = numberInBox
+            unknownBox.toString() shouldBe "InBox_반공변(v=10.0)"
+        }
+    }
 })
