@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.ints.shouldBeLessThanOrEqual
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 
 class GenericTest : DescribeSpec({
@@ -145,6 +146,63 @@ class GenericTest : DescribeSpec({
 
             val unknownBox: InBox_반공변<Int> = numberInBox
             unknownBox.toString() shouldBe "InBox_반공변(v=10.0)"
+        }
+    }
+
+    describe("operator invoke를 정의하면") {
+        it("객체를 함수처럼 호출할 수 있다.") {
+            val clazz = InvokeClass();
+
+            clazz() shouldBe "operator invoke"
+        }
+    }
+
+    describe("파라미터 타입과 반환 타입에 대해 공변성이 성립하는지") {
+        val numToAny: (Number) -> Any = { v:Number -> "Hahaha" }
+        val numToBoolean: (Number) -> Boolean = { v:Number -> true }
+        val intToAny: (Int) -> Any = { i:Int -> "$i" }
+        val intToBoolean: (Int) -> Boolean = { i:Int -> true }
+
+        val numToAnyFun1: (Number) -> Any = numToAny
+        val numToAnyFun2: (Number) -> Any = numToBoolean
+//        val numToAnyFun3: (Number) -> Any = intToAny      // 컴파일 에러
+//        val numToAnyFun4: (Number) -> Any = intToBoolean  // 컴파일 에러
+
+//        val numToBooleanFun1: (Number) -> Boolean = numToAny      // 컴파일 에러
+        val numToBooleanFun2: (Number) -> Boolean = numToBoolean
+//        val numToBooleanFun3: (Number) -> Boolean = intToAny      // 컴파일 에러
+//        val numToBooleanFun4: (Number) -> Boolean = intToBoolean  // 컴파일 에러
+
+        val intToAnyFunc1: (Int) -> Any = numToAny
+        val intToAnyFunc2: (Int) -> Any = numToBoolean
+        val intToAnyFunc3: (Int) -> Any = intToAny
+        val intToAnyFunc4: (Int) -> Any = intToBoolean
+    }
+
+    describe("무공변인 TestBox") {
+        val numberBox = TestBox<Number>(10.0)
+        val intBox = TestBox<Int>(10)
+
+        it("get 함수에 공변을 적용") {
+            fun get(box: TestBox<out Number>) : String{
+                return box.v.toString()
+            }
+
+            get(numberBox) shouldBe "10.0"
+            get(intBox) shouldBe "10"
+        }
+
+        it("set 함수에 반공변을 적용") {
+            fun set(box: TestBox<in Int>, value: Int) {
+                val tmp = box.v
+                box.v = value
+            }
+
+            set(numberBox, 11)
+            set(intBox, 11)
+
+            numberBox.v shouldBe 11
+            intBox.v shouldBe 11
         }
     }
 })

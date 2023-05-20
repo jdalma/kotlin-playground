@@ -75,3 +75,11 @@ class InOutBox<T: Number>(private var v: T) {
     }
     fun get(): T = v
 }
+
+class InvokeClass {
+    operator fun invoke(): String = "operator invoke"
+}
+
+class TestBox<T: Number>(
+    var v: T
+)
