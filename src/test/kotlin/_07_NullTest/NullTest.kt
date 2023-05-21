@@ -1,0 +1,67 @@
+package _07_NullTest
+
+import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
+
+class NullTest: DescribeSpec ({
+    val includeNullArr = arrayOf(null , 20 , 300 , 100 , 4)
+    val notIncludeNullArr = arrayOf(20 , 300 , 100 , 4)
+
+    describe("타입 파라미터가 T인 find 함수는") {
+        fun <T> find(arr: Array<T>, predicate: (T) -> Boolean) : T {
+            return arr.first(predicate)
+        }
+        it("배열의 원소가 null이어도 허용한다.") {
+            find(includeNullArr) { it != null && it >= 100 } shouldBe 300
+            find(notIncludeNullArr) { it >= 100 } shouldBe 300
+        }
+    }
+
+    describe("T 타입을 Any로 제한한 find 함수는") {
+        fun <T: Any> find(arr: Array<T>, predicate: (T) -> Boolean) : T {
+            return arr.first(predicate)
+        }
+        it("배열의 원소가 null이라면 허용하지 못한다.") {
+//          find(includeNullArr) { it != null && it >= 100 } // 컴파일 에러
+            find(notIncludeNullArr) { it >= 100 } shouldBe 300
+        }
+    }
+
+    describe("T 타입을 Any?로 제한한 find 함수는") {
+        fun <T: Any?> find(arr: Array<T>, predicate: (T) -> Boolean) : T {
+            return arr.first(predicate)
+        }
+        it("배열의 원소가 null이어도 허용한다.") {
+            find(includeNullArr) { it != null && it >= 100 } shouldBe 300
+            find(notIncludeNullArr) { it >= 100 } shouldBe 300
+        }
+    }
+
+    describe("T 타입 update 함수는") {
+        fun <T> update(array: Array<T>, transform: (T) -> T) : Array<T> {
+            for (i in array.indices) {
+                array[i] = transform(array[i])
+            }
+            return array
+        }
+
+        it("배열의 원소가 null이어도 허용한다.") {
+            update(includeNullArr) { if(it == null) 1 else it + 1 } shouldBe arrayOf(1 , 21 , 301 , 101 , 5)
+            update(notIncludeNullArr) { it + 1 } shouldBe arrayOf(21 , 301 , 101 , 5)
+        }
+    }
+
+    describe("T를 Any로 제한한 update 함수는") {
+        fun <T : Any> update(array: Array<T>, transform: (T) -> T) : Array<T> {
+            for (i in array.indices) {
+                array[i] = transform(array[i])
+            }
+            return array
+        }
+
+        it("배열의 원소가 null이면 허용하지 않는다.") {
+//            update(includeNullArr) { if(it == null) 1 else it + 1 } // 컴파일 에러
+            update(notIncludeNullArr) { it + 1 } shouldBe arrayOf(21 , 301 , 101 , 5)
+        }
+    }
+})
