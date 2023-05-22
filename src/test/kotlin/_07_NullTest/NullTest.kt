@@ -2,6 +2,10 @@ package _07_NullTest
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.matchers.types.shouldBeTypeOf
+import io.kotest.matchers.types.shouldNotBeInstanceOf
+import kotlin.random.Random
 
 class NullTest: DescribeSpec ({
     val includeNullArr = arrayOf(null , 20 , 300 , 100 , 4)
@@ -62,6 +66,34 @@ class NullTest: DescribeSpec ({
         it("배열의 원소가 null이면 허용하지 않는다.") {
 //            update(includeNullArr) { if(it == null) 1 else it + 1 } // 컴파일 에러
             update(notIncludeNullArr) { it + 1 } shouldBe arrayOf(21 , 301 , 101 , 5)
+        }
+    }
+
+    describe("Nothing과 Unit 반환 타입에 따른 널 추론") {
+        fun getIntOrNull() : Int? = if(Random.nextBoolean()) Random.nextInt(0, 1000) else null
+
+        it("항상 예외가 발생하고 Nothing을 반환하는 함수") {
+            fun alwaysFail(i: Int?) : Nothing { throw Throwable("항상 예외 발생") }
+
+            val number = getIntOrNull()
+            if (number == null || number > 900) {
+                alwaysFail(number)
+            }
+            val twice = number.times(2) // twice를 Int 타입으로 추론
+
+            twice.shouldBeInstanceOf<Int>()
+        }
+
+        it("항상 예외가 발생하고 Unit을 반환하는 함수") {
+            fun alwaysFail(i: Int?) : Unit { throw Throwable("항상 예외 발생") }
+
+            val number = getIntOrNull()
+            if (number == null || number > 900) {
+                alwaysFail(number)
+            }
+            val twice = number?.times(2) // number의 널을 허용한다.
+
+            twice.shouldBeInstanceOf<Int>()
         }
     }
 })
