@@ -1,10 +1,13 @@
 package _07_NullTest
 
+import io.kotest.assertions.print.printWithType
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.kotest.matchers.types.shouldNotBeInstanceOf
+import java.lang.IllegalArgumentException
 import kotlin.random.Random
 
 class NullTest: DescribeSpec ({
@@ -95,5 +98,38 @@ class NullTest: DescribeSpec ({
 
             twice.shouldBeInstanceOf<Int>()
         }
+    }
+
+    describe("널이 될 수 있는 타입의 값과 is,as 연산") {
+        val v1: Int? = null
+        val v2: Int? = 10
+
+        (v1 is Int?) shouldBe true
+        (v1 is Int) shouldBe false
+        (v2 is Int?) shouldBe true
+        (v2 is Int) shouldBe true
+    }
+
+    describe("엘비스 연산자") {
+        val string = ""
+
+        // firstOrNull이 Char? 타입을 반환하기 때문에 코드 연쇄를 쓸 수 없다.
+//        val firstLetterDoubleString = string.firstOrNull().code.toDouble().toString() // 컴파일 에러
+
+        val firstLetterDoubleString0 = string.firstOrNull()?.code?.toDouble()
+        val firstLetterDoubleString1 = string.firstOrNull()?.code?.toDouble().toString()
+        val firstLetterDoubleString2 = string.firstOrNull()?.code?.toDouble()?.toString()
+        val firstLetterDoubleString3 = string.firstOrNull()?.code?.toDouble()?.toString() ?: ""
+        val firstLetterDoubleString4 = (string.firstOrNull()?.code?.toDouble() ?: 0.0).toString()
+
+        shouldThrow<IllegalArgumentException> {
+            string.firstOrNull()?.code?.toDouble()?.toString() ?: throw IllegalArgumentException("널이에요")
+        }
+
+        firstLetterDoubleString0 shouldBe null
+        firstLetterDoubleString1 shouldBe "null"
+        firstLetterDoubleString2 shouldBe null
+        firstLetterDoubleString3 shouldBe ""
+        firstLetterDoubleString4 shouldBe "0.0"
     }
 })
