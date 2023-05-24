@@ -83,3 +83,12 @@ class InvokeClass {
 class TestBox<T: Number>(
     var v: T
 )
+
+fun foo(f: Number) {
+    var g: Number = f
+    g as Int
+    println(g+1)
+    g = 10.0
+    g as Double
+    println(g+10.1)
+}

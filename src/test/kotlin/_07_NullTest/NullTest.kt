@@ -132,4 +132,35 @@ class NullTest: DescribeSpec ({
         firstLetterDoubleString3 shouldBe ""
         firstLetterDoubleString4 shouldBe "0.0"
     }
+
+    describe("클래스 계층 관계에서 널의 가상 타입이 포함된다면?") {
+        open class Parent {}
+        class Child: Parent() {}
+
+        it("is의 관계") {
+            val parent = Parent()
+            val child = Child()
+
+            (child is Child) shouldBe true
+            (child is Child?) shouldBe true
+            (child is Parent) shouldBe true
+            (child is Parent?) shouldBe true
+            (parent is Child) shouldBe false
+            (parent is Child?) shouldBe false
+            (parent is Parent) shouldBe true
+            (parent is Parent?) shouldBe true
+
+            val parentNullable: Parent? = Parent()
+            val childNullable: Child? = Child()
+
+            (childNullable is Child) shouldBe true
+            (childNullable is Child?) shouldBe true
+            (childNullable is Parent) shouldBe true
+            (childNullable is Parent?) shouldBe true
+            (parentNullable is Child) shouldBe false
+            (parentNullable is Child?) shouldBe false
+            (parentNullable is Parent) shouldBe true
+            (parentNullable is Parent?) shouldBe true
+        }
+    }
 })

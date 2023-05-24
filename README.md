@@ -1,5 +1,5 @@
 
-# [연습문제](https://github.com/jdalma/kotlin-core-programming/wiki/%EC%97%B0%EC%8A%B5-%EB%AC%B8%EC%A0%9C)
+# [연습문제](연습문제.md)
 
 # 무지 목록
 
@@ -60,3 +60,50 @@
 10. 인터페이스 다중 구현할 때 시그니처가 똑같은 함수를 `super`를 통해 지정하여 다이아몬드 문제를 해결할 수 있는데, 왜 다중 상속은 안풀어주는걸까?
     - 자바 호환성을 위해 그렇지 않을까 라고 생각하신다
 11. 맹대표님은 내부 함수들이 발생시키는 예외를 외부 (호출자 입장에서) `try/catch/catch ...` 와 같은 처리는 문제가 된다고 생각
+
+# 3회차 모임 `2023.05.23` 7장. 널 가능성
+
+## 6장. 제네릭
+
+1. 널러블 세탁이나 가시성을 위해 백킹필드를 사용할 때 `_`를 붙여서 사용한다.
+   - [`kotlinlang` properties](https://kotlinlang.org/docs/properties.html#backing-properties)
+   - ```kotlin
+     private var _map:HashMap<String,String>? = null
+     private val map get() = _map ?: hashMapOf().also{_map = it}
+     ```
+2. `T`, `I`, `U`와 같은 약자로 타입 파라미터를 지정하기 보다는 명확한 단어를 쓰는것이 좋지 않을까?
+   - [`java docs` Generic Types](https://docs.oracle.com/javase/tutorial/java/generics/types.html)
+3. **코틀린의 `선언 지점 번셩`과 `사용 지점 변성`에서 사용하는 `in`, `out`의 의미가 다르다** 📌
+4. 코틀린에서 `Lower bound`는 왜 제거 되었을까? 📌
+5. 함수를 콜 할떄의 상황으로만 분류할 수 있기 때문에 함수의 시그니처에 반환 타입은 포함되지 않는다.
+   - 내부에서 제네릭을 사용하는 입장에서는 단순한 `T` 타입을 사용하는 것이 아니라 해당 `T` 타입의 대체 가능성을 사용하는 것이다.
+6. 람다에서는 어떻게 변성을 확인할까? **이펙티브 자바에 나오는 PECS의 특성이 이미 함수형 인터페이스에 적용되어 있다.**
+
+- ```kotlin
+   val numToAny: (Number) -> Any = { v:Number -> "Hahaha" }
+   val numToBoolean: (Number) -> Boolean = { v:Number -> true }
+   val intToAny: (Int) -> Any = { i:Int -> "$i" }
+   val intToBoolean: (Int) -> Boolean = { i:Int -> true }
+   
+   val numToAnyFun1: (Number) -> Any = numToAny
+   val numToAnyFun2: (Number) -> Any = numToBoolean
+   //        val numToAnyFun3: (Number) -> Any = intToAny      // 컴파일 에러
+   //        val numToAnyFun4: (Number) -> Any = intToBoolean  // 컴파일 에러
+   
+   //        val numToBooleanFun1: (Number) -> Boolean = numToAny      // 컴파일 에러
+   val numToBooleanFun2: (Number) -> Boolean = numToBoolean
+   //        val numToBooleanFun3: (Number) -> Boolean = intToAny      // 컴파일 에러
+   //        val numToBooleanFun4: (Number) -> Boolean = intToBoolean  // 컴파일 에러
+   
+   val intToAnyFunc1: (Int) -> Any = numToAny
+   val intToAnyFunc2: (Int) -> Any = numToBoolean
+   val intToAnyFunc3: (Int) -> Any = intToAny
+   val intToAnyFunc4: (Int) -> Any = intToBoolean
+   ```
+7. 타입 간에 상하위 관계가 성립한다는 말은? **리스코프 치환 원칙이 성립 한다는 말이다.**
+8. 코틀린은 네이티브 함수 타입? `operator invoke()`등 `Callable` 이라는 특별한 카테고리에 묶인다. 📌
+
+## 7장. 널 가능성
+
+1. [Kotlin Symbol Processing](https://csy7792.tistory.com/355) 📌
+2. [제네릭 유형 속성이 null을 허용하는 이유는 무엇입니까?](https://stackoverflow.com/questions/33021802/why-is-a-generic-typed-property-nullable)
