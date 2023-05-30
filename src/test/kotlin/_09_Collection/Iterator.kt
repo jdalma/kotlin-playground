@@ -3,6 +3,7 @@ package _09_Collection
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.equals.shouldBeEqual
+import io.kotest.matchers.equals.shouldNotBeEqual
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.yield
 import kotlin.collections.Iterator
@@ -52,10 +53,10 @@ class Iterator : DescribeSpec ({
             testA,
             testB,
             testC
-        ).iterator()
+        ).iterator() // kotlin.collections.Iterator
 
-        it("블록 내부에서 원소를 제공할 수 있다..") {
-            val yieldIter = iterator {
+        it("블록 내부에서 원소를 제공할 수 있다.") {
+            val yieldIter = iterator { // SequenceBuilderIterator
                 // 빌드 중인 Iterator 에 값을 생성하고 다음 값이 요청될 때까지 일시 중단합니다.
                 yield(testA)
                 yield(testB)
@@ -65,6 +66,7 @@ class Iterator : DescribeSpec ({
             while (iter.hasNext()) {
                 iter.next() shouldBeEqual yieldIter.next()
             }
+            iter shouldNotBeEqual yieldIter
         }
     }
 
