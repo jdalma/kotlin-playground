@@ -5,7 +5,7 @@
 
 1. `reified`
 2. `vtable`
-3. `suspend`, `yield`
+3. 즉시 실행 `suspend`, `yield`
 4. 코루틴 컨텍스트를 지정하기 위해 사용되는 `@Context`
    - [Context Receivers](https://github.com/Kotlin/KEEP/blob/master/proposals/context-receivers.md)
    - [Coroutines](https://github.com/Kotlin/KEEP/blob/master/proposals/coroutines.md)
@@ -15,10 +15,13 @@
    - `lateinit var` 프로퍼티에 대해서는 게터와 세터를 정의할 수 없다.
 8. [Delegated properties](https://kotlinlang.org/docs/delegated-properties.html)
 9. 오버로드 해소 규칙
+10. 코틀린의 internal은 모듈 internal이다.
+    11. 패키지 internal이 아니다.
 
 # 예제 작성 필요
 
-
+1. operator 구현
+2. by 키워드에 의한 위임 테스트
 
 # 1회차 모임 `2023.05.10`
 
@@ -66,7 +69,7 @@
     - 자바 호환성을 위해 그렇지 않을까 라고 생각하신다
 11. 맹대표님은 내부 함수들이 발생시키는 예외를 외부 (호출자 입장에서) `try/catch/catch ...` 와 같은 처리는 문제가 된다고 생각
 
-# 3회차 모임 `2023.05.23` 7장. 널 가능성
+# 3회차 모임 `2023.05.23`
 
 ## 6장. 제네릭
 
@@ -112,3 +115,32 @@
 
 1. [Kotlin Symbol Processing](https://csy7792.tistory.com/355) 📌
 2. [제네릭 유형 속성이 null을 허용하는 이유는 무엇입니까?](https://stackoverflow.com/questions/33021802/why-is-a-generic-typed-property-nullable)
+
+# 4회차 모임 `2023.05.31`
+
+## ~~8장. 패키지와 임포트~~
+
+## 9장. 컬렉션
+
+- 타입 시스템을 통해 기능을 사용하면 하위 호환성에 문제가 생길 가능성이 있다.
+  - 예를 들면 자바에서는 `Iterator` 인터페이스를 확장해야 `for`문을 쓸 수 있다.
+  - 코틀린은 타입에 의존하지 않고 **연산자 (`operator`)**에 의존한다.
+  - 타입을 확장하지 말고 `operator`를 구현 해놓는다면 특정 기능들을 사용할 수 있다.
+  - 이러함의 장점은 언어 업데이트가 쉽다는 것이다.
+  - **근데 코틀린의 컬렉션 타입 계층을 보면 (`iterator`를 반환하는 `operator` 메소드를 가진) `Iterable`이 존재한다.**
+  - 수많은 컬렉션의 함수들은 `Iterable` 계층에서 발생한다.
+  - **타입을 가져다쓸까 `operator`를 구현할까 결정해야 할 것이다.**
+    - 타입에 대한 유틸 함수를 더 누리고 싶은지와 내가 원하는 용도로만 사용할 것인지
+- ```kotlin
+  class L{
+   operator fun iterator() = this
+   operator fun hasNext()
+   operator fun next()
+  }
+  for(i in L)
+  ```
+  - `iterator`가 `Iterable`을 대신할 수 있다.
+  - 그 이유는 **스스로를 반환하는 확장 함수가 존재하기 떄문이다.**
+  - `operator fun <T> Iterator<T>.iterator(): Iterator<T>` [참고](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-iterator/)
+- 무의식적으로 `Map`을 사용하면 내부 구현체는 `Linked...`이다. 느리다.
+  - 그냥 `HashMap`을 쓰자 
