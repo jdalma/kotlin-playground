@@ -1,6 +1,7 @@
 package _03_Function
 
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
 
 class FunctionTest: DescribeSpec({
@@ -10,27 +11,27 @@ class FunctionTest: DescribeSpec({
             val pair = 1 to 10
 
             it("합산한다.") {
-                Function.add(pair.first, pair.second) shouldBe 11
-                Function.add2(pair.first, pair.second) shouldBe 11
-                Function.add3(pair.first, pair.second) shouldBe 11
-                Function.add4(pair.first, pair.second) shouldBe 11
-                Function.add5 (pair.first, pair.second) shouldBe 11
+                Function.add(pair.first, pair.second) shouldBeEqual 11
+                Function.add2(pair.first, pair.second) shouldBeEqual 11
+                Function.add3(pair.first, pair.second) shouldBeEqual 11
+                Function.add4(pair.first, pair.second) shouldBeEqual 11
+                Function.add5 (pair.first, pair.second) shouldBeEqual 11
 
-                (fun (x: Int, y: Int) = x + y) (pair.first, pair.second) shouldBe 11
-                { x: Int, y: Int -> x + y } (pair.first, pair.second) shouldBe 11
+                (fun (x: Int, y: Int) = x + y) (pair.first, pair.second) shouldBeEqual 11
+                { x: Int, y: Int -> x + y } (pair.first, pair.second) shouldBeEqual 11
             }
         }
     }
 
     describe("returnUnit 함수는") {
         context("Unit 을 반환한다.") {
-            Function.returnUnit() shouldBe Unit
+            Function.returnUnit() shouldBeEqual Unit
         }
     }
 
     describe("nameShadowing") {
         Function.nameShadowingTest()
-        Function.called shouldBe 36
+        Function.called shouldBeEqual 36
     }
 
     describe("고차함수의 클로저") {
@@ -38,11 +39,11 @@ class FunctionTest: DescribeSpec({
         // 이 시점엔 Function.state가 끝났으므로 state 내부 지역 변수 var memory는 더 이상 스택에 존재하지 않는다.
         // 컴파일러는 반환된 람다를 나중에 호출해도 아무 문제가 없도록, 람다가 참조하는 람다 밖에 정의된 변숫값들을 포함한 데이터 구조를 힙에 저장한다.
 
-        func(0) shouldBe 10
-        func(1) shouldBe 10
-        func(2) shouldBe 1
-        func(10) shouldBe 2
-        func(0) shouldBe 10
+        func(0) shouldBeEqual 10
+        func(1) shouldBeEqual 10
+        func(2) shouldBeEqual 1
+        func(10) shouldBeEqual 2
+        func(0) shouldBeEqual 10
     }
 
     describe("고차함수 예제") {
@@ -53,12 +54,12 @@ class FunctionTest: DescribeSpec({
         val lambdaE = Function.e(1 , 2)
         val lambdaF = Function.f(1 , 2)
 
-        lambdaA(3) shouldBe 4
-        lambdaB(3) shouldBe 3
-        lambdaC(3) shouldBe 4
-        lambdaD(3) shouldBe 5
-        lambdaE(3,4) shouldBe 7
-        lambdaF() shouldBe 3
+        lambdaA(3) shouldBeEqual 4
+        lambdaB(3) shouldBeEqual 3
+        lambdaC(3) shouldBeEqual 4
+        lambdaD(3) shouldBeEqual 5
+        lambdaE(3,4) shouldBeEqual 7
+        lambdaF() shouldBeEqual 3
     }
 
     describe("joinToString 함수는") {
@@ -75,13 +76,13 @@ class FunctionTest: DescribeSpec({
                     delimiter,
                     prefix,
                     postfix
-                )  shouldBe "Start-첫 번째,두 번째,세 번째-End"
+                )  shouldBeEqual "Start-첫 번째,두 번째,세 번째-End"
             }
         }
 
         context("파라미터를 모두 전달하지 않는다면") {
             it("디폴트 파라미터가 사용된다.") {
-                Function.joinToString() shouldBe "Start-a,e,i,o,u-End"
+                Function.joinToString() shouldBeEqual "Start-a,e,i,o,u-End"
             }
         }
 
@@ -92,7 +93,7 @@ class FunctionTest: DescribeSpec({
                 Function.joinToString(
                     prefix = prefix,
                     postfix = postfix
-                ) shouldBe "[a,e,i,o,u]"
+                ) shouldBeEqual "[a,e,i,o,u]"
             }
         }
     }
@@ -103,14 +104,14 @@ class FunctionTest: DescribeSpec({
             val b = "b"
             val c = "c"
             it("누적하여 반환한다.") {
-                Function.sumString(a,b,c) shouldBe "abc"
+                Function.sumString(a,b,c) shouldBeEqual "abc"
             }
         }
 
         context("문자열 배열을 한 번에 전달하면") {
             val strings = arrayOf("a","b","c")
             it("누적하여 반환한다.") {
-                Function.sumString(*strings) shouldBe "abc"
+                Function.sumString(*strings) shouldBeEqual "abc"
             }
         }
     }

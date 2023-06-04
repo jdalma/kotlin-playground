@@ -34,12 +34,12 @@ class IterableTest: BehaviorSpec ({
                  * iterable을 통해 for문을 실행하면 내부 iterator의 number 상태가 변경되어있을 줄 알았지만, 0 그대로다.
                  * iterable의 for문을 사용해도 내부 iterator는 일회용으로 사용되는 것 같다.
                  */
-                test shouldBe sum
-                iterable.iterator().next() shouldBe 0
+                test shouldBeEqual sum
+                iterable.iterator().next() shouldBeEqual 0
 
                 var test2 = 0
                 for (i in iterator) { test2 += i }
-                test2 shouldBe sum
+                test2 shouldBeEqual sum
 
                 test shouldBeEqual test2
             }
@@ -50,17 +50,17 @@ class IterableTest: BehaviorSpec ({
 
                 var test = 0
                 iterable.forEach { test += it }
-                test shouldBe sum
+                test shouldBeEqual sum
 
                 var test2 = 0
                 iterator.forEach { test2 += it }
-                test2 shouldBe sum
+                test2 shouldBeEqual sum
             }
 
             then("Iterable만 sum()이 존재한다.") {
                 val iterable = ImplementIterable(size)
 
-                iterable.sum() shouldBe sum
+                iterable.sum() shouldBeEqual sum
             }
         }
     }
@@ -83,7 +83,7 @@ class IterableTest: BehaviorSpec ({
             then("for .. in") {
                 var test = 0
                 for (i in iterable) { test += i }
-                test shouldBe sum
+                test shouldBeEqual sum
             }
 
             then("컴파일 에러") {

@@ -2,6 +2,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.annotation.DisplayName
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainOnly
+import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.ints.shouldBeLessThanOrEqual
@@ -14,11 +15,11 @@ import kotlin.random.Random
 class BasicTest : FunSpec({
 
     test("더하기") {
-        1 + 10 shouldBe 11
+        1 + 10 shouldBeEqual 11
     }
 
     test("곱하기") {
-        1.0 * 2.0 shouldBe 2.0
+        1.0 * 2.0 shouldBeEqual 2.0
     }
 
     test("문자열을 정수로 변환할 수 없을 떄") {
@@ -33,8 +34,8 @@ class BasicTest : FunSpec({
         val unsigned = (-1).toUInt()
         val signed = unsigned.toInt()
 
-        unsigned shouldBe 4294967295.toUInt()
-        signed shouldBe -1
+        unsigned shouldBeEqual 4294967295.toUInt()
+        signed shouldBeEqual -1
     }
 
     test("반복문") {
@@ -69,7 +70,7 @@ class BasicTest : FunSpec({
 
     test("배열을 생성하는 세 가지 방법") {
         val oneToTen = arrayOf(1,2,3,4,5)
-        oneToTen.size shouldBe 5
+        oneToTen.size shouldBeEqual 5
         shouldThrow<ArrayIndexOutOfBoundsException> {
             oneToTen[5]
         }
@@ -79,7 +80,7 @@ class BasicTest : FunSpec({
 
         val arrayOf1To10 = Array(10) {it + 1}
         arrayOf1To10.forEachIndexed { index, value ->
-            value shouldBe index + 1
+            value shouldBeEqual index + 1
             value shouldBeLessThan 11
             value shouldNotBe 0
         }
@@ -89,17 +90,17 @@ class BasicTest : FunSpec({
         val arrayOf1To10 = Array(10) {it + 1}
         val intRange = arrayOf1To10.indices
 
-        arrayOf1To10.size shouldBe 10
-        arrayOf1To10.first() shouldBe 1
-        arrayOf1To10.last() shouldBe 10
+        arrayOf1To10.size shouldBeEqual 10
+        arrayOf1To10.first() shouldBeEqual 1
+        arrayOf1To10.last() shouldBeEqual 10
 
-        intRange.first shouldBe 0
-        intRange.start shouldBe 0
-        intRange.last shouldBe 9
-        intRange.endInclusive shouldBe 9
-        intRange.step shouldBe 1
+        intRange.first shouldBeEqual 0
+        intRange.start shouldBeEqual 0
+        intRange.last shouldBeEqual 9
+        intRange.endInclusive shouldBeEqual 9
+        intRange.step shouldBeEqual 1
 
-        (1 in arrayOf1To10) shouldBe true
-        (11 in arrayOf1To10) shouldBe false
+        (1 in arrayOf1To10) shouldBeEqual true
+        (11 in arrayOf1To10) shouldBeEqual false
     }
 })

@@ -2,6 +2,7 @@ package _04_ClassAndObject
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
 
 class ClassTest : ShouldSpec ({
@@ -15,7 +16,7 @@ class ClassTest : ShouldSpec ({
         )
 
         should("sum() 함수는 과목의 점수를 합산하여 반환한다.") {
-            studentScore.sum() shouldBe 270
+            studentScore.sum() shouldBeEqual 270
         }
     }
 
@@ -23,7 +24,7 @@ class ClassTest : ShouldSpec ({
         val foo = Foo("제목")
 
         should(".allTitle() 함수는 [제목!_제목]을 리턴한다.") {
-            foo.allTitle() shouldBe "제목!_제목"
+            foo.allTitle() shouldBeEqual "제목!_제목"
         }
     }
 
@@ -31,7 +32,7 @@ class ClassTest : ShouldSpec ({
         val init = InitExample("abc")
 
         should("result 필드는 생성자 파라미터와 그 길이를 반환한다.") {
-            init.result shouldBe "abc:3"
+            init.result shouldBeEqual "abc:3"
         }
     }
 
@@ -39,14 +40,14 @@ class ClassTest : ShouldSpec ({
         val circle = Circle(1.5, 3.0, 1.2)
 
         should("자식 객체에서 부모 메소드를 호출할 수 있다.") {
-            circle.paint() shouldBe "Shape(1.5,3.0)"
+            circle.paint() shouldBeEqual "Shape(1.5,3.0)"
         }
 
         val child1 = Child1(10)
         val child2 = Child2(10)
         should("자식이 부모 멤버 필드를 오버라이딩할 수 있다.") {
-            child1.x shouldBe 10
-            child2.x shouldBe 10
+            child1.x shouldBeEqual 10
+            child2.x shouldBeEqual 10
         }
     }
 
@@ -55,16 +56,16 @@ class ClassTest : ShouldSpec ({
             val number: Number = 10
             val string = "abc"
 
-            (number is Int) shouldBe true
-            (number is Number) shouldBe true
-            (number is Double) shouldBe false
-            (string is String) shouldBe true
+            (number is Int) shouldBeEqual true
+            (number is Number) shouldBeEqual true
+            (number is Double) shouldBeEqual false
+            (string is String) shouldBeEqual true
         }
 
         should("as 연산자는 타입을 변환 시킬 수 있다.") {
             val child = Child1(10)
 
-            ((child as Parent) is Parent) shouldBe true
+            ((child as Parent) is Parent) shouldBeEqual true
         }
     }
 
@@ -76,16 +77,16 @@ class ClassTest : ShouldSpec ({
         val e = E()
 
         should("toString 과 toString2 함수의 결과는") {
-            a.toString() shouldBe "A: Any"
-            b.toString() shouldBe "B: A: Any"
-            c.toString() shouldBe "B: A: Any"
-            d.toString() shouldBe "B: A: Any"
+            a.toString() shouldBeEqual "A: Any"
+            b.toString() shouldBeEqual "B: A: Any"
+            c.toString() shouldBeEqual "B: A: Any"
+            d.toString() shouldBeEqual "B: A: Any"
 
-            a.toString2() shouldBe "IA"
-            b.toString2() shouldBe "IB: IA"
-            c.toString2() shouldBe "IB: IA"
-            d.toString2() shouldBe "IB: IA" // 나는 "IA"가 출력될 줄 알았다..
-            e.toString2() shouldBe "E: IB: IA: IC"
+            a.toString2() shouldBeEqual "IA"
+            b.toString2() shouldBeEqual "IB: IA"
+            c.toString2() shouldBeEqual "IB: IA"
+            d.toString2() shouldBeEqual "IB: IA" // 나는 "IA"가 출력될 줄 알았다..
+            e.toString2() shouldBeEqual "E: IB: IA: IC"
         }
     }
 
@@ -107,7 +108,7 @@ class ClassTest : ShouldSpec ({
 
         should("초기화 하고 사용하면 예외가 발생하지 않는다.") {
             obj.initValue()
-            obj.value shouldBe "init"
+            obj.value shouldBeEqual "init"
         }
     }
 

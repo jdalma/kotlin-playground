@@ -30,8 +30,8 @@ class Iterator : DescribeSpec ({
         it("1부터 5까지의 숫자를 가진 Iterable 반환") {
             val iter = IterOneToFive()
 
-            iter.min() shouldBe 1
-            iter.max() shouldBe 5
+            iter.min() shouldBeEqual 1
+            iter.max() shouldBeEqual 5
         }
 
         it("표준 라이브러리에 있는 함수인 Iterable()") {
@@ -42,7 +42,7 @@ class Iterator : DescribeSpec ({
             }
             var number = 1
             for (i in iterable) {
-                i shouldBe number++
+                i shouldBeEqual number++
             }
         }
     }

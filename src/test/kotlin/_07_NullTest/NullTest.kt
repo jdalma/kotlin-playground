@@ -1,50 +1,53 @@
 package _07_NullTest
 
-import io.kotest.assertions.print.printWithType
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.kotest.matchers.types.shouldBeTypeOf
-import io.kotest.matchers.types.shouldNotBeInstanceOf
 import java.lang.IllegalArgumentException
 import kotlin.random.Random
 
 class NullTest: DescribeSpec ({
-    val includeNullArr = arrayOf(null , 20 , 300 , 100 , 4)
-    val notIncludeNullArr = arrayOf(20 , 300 , 100 , 4)
 
     describe("타입 파라미터가 T인 find 함수는") {
+        val includeNullArr = arrayOf(null , 20 , 300 , 100 , 4)
+        val notIncludeNullArr = arrayOf(20 , 300 , 100 , 4)
         fun <T> find(arr: Array<T>, predicate: (T) -> Boolean) : T {
             return arr.first(predicate)
         }
         it("배열의 원소가 null이어도 허용한다.") {
-            find(includeNullArr) { it != null && it >= 100 } shouldBe 300
-            find(notIncludeNullArr) { it >= 100 } shouldBe 300
+            find(includeNullArr) { it != null && it >= 100 }?.shouldBeEqual(300)
+            find(notIncludeNullArr) { it >= 100 } shouldBeEqual 300
         }
     }
 
     describe("T 타입을 Any로 제한한 find 함수는") {
+        val notIncludeNullArr = arrayOf(20 , 300 , 100 , 4)
         fun <T: Any> find(arr: Array<T>, predicate: (T) -> Boolean) : T {
             return arr.first(predicate)
         }
         it("배열의 원소가 null이라면 허용하지 못한다.") {
 //          find(includeNullArr) { it != null && it >= 100 } // 컴파일 에러
-            find(notIncludeNullArr) { it >= 100 } shouldBe 300
+            find(notIncludeNullArr) { it >= 100 } shouldBeEqual 300
         }
     }
 
     describe("T 타입을 Any?로 제한한 find 함수는") {
+        val includeNullArr = arrayOf(null , 20 , 300 , 100 , 4)
+        val notIncludeNullArr = arrayOf(20 , 300 , 100 , 4)
         fun <T: Any?> find(arr: Array<T>, predicate: (T) -> Boolean) : T {
             return arr.first(predicate)
         }
         it("배열의 원소가 null이어도 허용한다.") {
-            find(includeNullArr) { it != null && it >= 100 } shouldBe 300
-            find(notIncludeNullArr) { it >= 100 } shouldBe 300
+            find(includeNullArr) { it != null && it >= 100 }?.shouldBeEqual(300)
+            find(notIncludeNullArr) { it >= 100 } shouldBeEqual 300
         }
     }
 
     describe("T 타입 update 함수는") {
+        val includeNullArr = arrayOf(null , 20 , 300 , 100 , 4)
+        val notIncludeNullArr = arrayOf(20 , 300 , 100 , 4)
         fun <T> update(array: Array<T>, transform: (T) -> T) : Array<T> {
             for (i in array.indices) {
                 array[i] = transform(array[i])
@@ -53,12 +56,13 @@ class NullTest: DescribeSpec ({
         }
 
         it("배열의 원소가 null이어도 허용한다.") {
-            update(includeNullArr) { if(it == null) 1 else it + 1 } shouldBe arrayOf(1 , 21 , 301 , 101 , 5)
+            update(includeNullArr) { if(it == null) 1 else it + 1 } shouldBe arrayOf(1, 21 , 301 , 101 , 5)
             update(notIncludeNullArr) { it + 1 } shouldBe arrayOf(21 , 301 , 101 , 5)
         }
     }
 
     describe("T를 Any로 제한한 update 함수는") {
+        val notIncludeNullArr = arrayOf(20 , 300 , 100 , 4)
         fun <T : Any> update(array: Array<T>, transform: (T) -> T) : Array<T> {
             for (i in array.indices) {
                 array[i] = transform(array[i])
@@ -104,10 +108,10 @@ class NullTest: DescribeSpec ({
         val v1: Int? = null
         val v2: Int? = 10
 
-        (v1 is Int?) shouldBe true
-        (v1 is Int) shouldBe false
-        (v2 is Int?) shouldBe true
-        (v2 is Int) shouldBe true
+        (v1 is Int?) shouldBeEqual true
+        (v1 is Int) shouldBeEqual false
+        (v2 is Int?) shouldBeEqual true
+        (v2 is Int) shouldBeEqual true
     }
 
     describe("엘비스 연산자") {
@@ -127,10 +131,10 @@ class NullTest: DescribeSpec ({
         }
 
         firstLetterDoubleString0 shouldBe null
-        firstLetterDoubleString1 shouldBe "null"
+        firstLetterDoubleString1 shouldBeEqual "null"
         firstLetterDoubleString2 shouldBe null
-        firstLetterDoubleString3 shouldBe ""
-        firstLetterDoubleString4 shouldBe "0.0"
+        firstLetterDoubleString3 shouldBeEqual ""
+        firstLetterDoubleString4 shouldBeEqual "0.0"
     }
 
     describe("클래스 계층 관계에서 널의 가상 타입이 포함된다면?") {
@@ -141,26 +145,26 @@ class NullTest: DescribeSpec ({
             val parent = Parent()
             val child = Child()
 
-            (child is Child) shouldBe true
-            (child is Child?) shouldBe true
-            (child is Parent) shouldBe true
-            (child is Parent?) shouldBe true
-            (parent is Child) shouldBe false
-            (parent is Child?) shouldBe false
-            (parent is Parent) shouldBe true
-            (parent is Parent?) shouldBe true
+            (child is Child) shouldBeEqual true
+            (child is Child?) shouldBeEqual true
+            (child is Parent) shouldBeEqual true
+            (child is Parent?) shouldBeEqual true
+            (parent is Child) shouldBeEqual false
+            (parent is Child?) shouldBeEqual false
+            (parent is Parent) shouldBeEqual true
+            (parent is Parent?) shouldBeEqual true
 
             val parentNullable: Parent? = Parent()
             val childNullable: Child? = Child()
 
-            (childNullable is Child) shouldBe true
-            (childNullable is Child?) shouldBe true
-            (childNullable is Parent) shouldBe true
-            (childNullable is Parent?) shouldBe true
-            (parentNullable is Child) shouldBe false
-            (parentNullable is Child?) shouldBe false
-            (parentNullable is Parent) shouldBe true
-            (parentNullable is Parent?) shouldBe true
+            (childNullable is Child) shouldBeEqual true
+            (childNullable is Child?) shouldBeEqual true
+            (childNullable is Parent) shouldBeEqual true
+            (childNullable is Parent?) shouldBeEqual true
+            (parentNullable is Child) shouldBeEqual false
+            (parentNullable is Child?) shouldBeEqual false
+            (parentNullable is Parent) shouldBeEqual true
+            (parentNullable is Parent?) shouldBeEqual true
         }
     }
 })

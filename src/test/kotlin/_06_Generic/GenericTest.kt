@@ -1,6 +1,7 @@
 package _06_Generic
 
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.ints.shouldBeLessThanOrEqual
@@ -38,26 +39,26 @@ class GenericTest : DescribeSpec({
         val triple2 = Triple("first",2,3.5)
 
         context("3개의 필드를 보유한다.") {
-            triple1.first shouldBe 1
-            triple1.second shouldBe 2
-            triple1.third shouldBe 3
+            triple1.first shouldBeEqual 1
+            triple1.second shouldBeEqual 2
+            triple1.third shouldBeEqual 3
 
-            triple2.first shouldBe "first"
-            triple2.second shouldBe 2
-            triple2.third shouldBe 3.5
+            triple2.first shouldBeEqual "first"
+            triple2.second shouldBeEqual 2
+            triple2.third shouldBeEqual 3.5
         }
 
         context("reverse 함수는") {
             it("세 원소 순서를 뒤집은 새로운 Triple 객체를 반환한다.") {
-                triple1.reverse() shouldBe Triple(3,2,1)
-                triple2.reverse() shouldBe Triple(3.5,2,"first")
+                triple1.reverse() shouldBeEqual Triple(3,2,1)
+                triple2.reverse() shouldBeEqual Triple(3.5,2,"first")
             }
         }
 
         context("toString 함수는") {
             it("'(첫 번째, 두 번째, 세 번째)'의 형식으로된 문자열을 반환한다.") {
-                triple1.toString() shouldBe "(1, 2, 3)"
-                triple2.toString() shouldBe "(first, 2, 3.5)"
+                triple1.toString() shouldBeEqual "(1, 2, 3)"
+                triple2.toString() shouldBeEqual "(first, 2, 3.5)"
             }
         }
     }
@@ -88,8 +89,8 @@ class GenericTest : DescribeSpec({
 
         context("threshold 보다 큰 값만 반환한다.") {
 
-            copyWhenGenerator(param1.first, param1.second) shouldBe listOf("c" , "d")
-            copyWhenGenerator(param2.first, param2.second) shouldBe listOf("C")
+            copyWhenGenerator(param1.first, param1.second) shouldBeEqual listOf("c" , "d")
+            copyWhenGenerator(param2.first, param2.second) shouldBeEqual listOf("C")
         }
     }
 
@@ -99,10 +100,10 @@ class GenericTest : DescribeSpec({
             val numberOutBox = OutBox<Number>(10.0)
 
 //            val unknownBox1: OutBox<Number> = intOutBox // 컴파일 에러
-//            unknownBox1.get() shouldBe 10 // get()을 통해 값을 꺼내 업캐스팅이 되므로 여기서는 컴파일 에러가 나지 않는다.
+//            unknownBox1.get() shouldBeEqual 10 // get()을 통해 값을 꺼내 업캐스팅이 되므로 여기서는 컴파일 에러가 나지 않는다.
 
             val unknownBox2: OutBox<Number> = numberOutBox
-            unknownBox2.get() shouldBe 10.0
+            unknownBox2.get() shouldBeEqual 10.0
 
         }
     }
@@ -113,10 +114,10 @@ class GenericTest : DescribeSpec({
             val numberOutBox = OutBox_공변<Number>(10.0)
 
             val unknownBox1: OutBox_공변<Number> = intOutBox
-            unknownBox1.get() shouldBe 10
+            unknownBox1.get() shouldBeEqual 10
 
             var unknownBox2: OutBox_공변<Number> = numberOutBox
-            unknownBox2.get() shouldBe 10.0
+            unknownBox2.get() shouldBeEqual 10.0
         }
     }
 
@@ -145,7 +146,7 @@ class GenericTest : DescribeSpec({
             val numberInBox = InBox_반공변<Number>(10.0)
 
             val unknownBox: InBox_반공변<Int> = numberInBox
-            unknownBox.toString() shouldBe "InBox_반공변(v=10.0)"
+            unknownBox.toString() shouldBeEqual "InBox_반공변(v=10.0)"
         }
     }
 
@@ -153,7 +154,7 @@ class GenericTest : DescribeSpec({
         it("객체를 함수처럼 호출할 수 있다.") {
             val clazz = InvokeClass();
 
-            clazz() shouldBe "operator invoke"
+            clazz() shouldBeEqual "operator invoke"
         }
     }
 
@@ -188,8 +189,8 @@ class GenericTest : DescribeSpec({
                 return box.v.toString()
             }
 
-            get(numberBox) shouldBe "10.0"
-            get(intBox) shouldBe "10"
+            get(numberBox) shouldBeEqual "10.0"
+            get(intBox) shouldBeEqual "10"
         }
 
         it("set 함수에 반공변을 적용") {
@@ -201,8 +202,8 @@ class GenericTest : DescribeSpec({
             set(numberBox, 11)
             set(intBox, 11)
 
-            numberBox.v shouldBe 11
-            intBox.v shouldBe 11
+            numberBox.v shouldBeEqual 11
+            intBox.v shouldBeEqual 11
         }
     }
 })

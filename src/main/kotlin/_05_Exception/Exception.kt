@@ -38,11 +38,10 @@ class StringToInt(
 ) {
     fun throwException() = try { str.toInt() } catch (e: NumberFormatException) { throw e }
     fun returnZero() = try { str.toInt() } catch (e: NumberFormatException) { 0 }
-    val throwNewException: Int = try { str.toInt() } catch (e: NumberFormatException) { throw InputException(e) }
     val result = if(bool) 0 else throw InputException()
 
     // 첫 번째. 예외를 변수에 대입할 때 (식의 일부분으로 사용될 때)
-    val exception: Nothing = throw InputException("실행하자마자 바로 예외를 던져 프로그램이 중단된다.")
+//    val exception: Nothing = throw InputException("실행하자마자 바로 예외를 던져 프로그램이 중단된다.")
 
     // 두 번째. 함수 반환 타입이 Nothing인 경우
     fun function1(): Nothing {
