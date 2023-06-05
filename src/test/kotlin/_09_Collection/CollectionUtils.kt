@@ -7,8 +7,6 @@ import io.kotest.matchers.shouldBe
 
 class CollectionUtils :StringSpec ({
 
-
-
     "제자리 정렬" {
         val array = intArrayOf(5,3,2,1,4)
         array.sort()
@@ -228,6 +226,30 @@ class CollectionUtils :StringSpec ({
         )
     }
 
+    "map, mapNotNull" {
+        val array = arrayOf(1, 2, 3, 4, 5)
+        val set = setOf(1, 2, 3, 4, 5)
+
+        array.map { it * 2 } shouldBe arrayOf(2, 4, 6, 8, 10)
+        set.map { it * 2 } shouldBe arrayOf(2, 4, 6, 8, 10)
+
+        val list = listOf(1,null,2,null,3)
+        list.mapNotNull { it?.times(2) } shouldBeEqual listOf(2,4,6)
+
+        data class Person(
+            var name: String,
+            var age: Int
+        )
+
+        val map = mapOf(
+            "one" to Person("one", 10),
+            "two" to Person("two", 20),
+            "three" to Person("three", 30)
+        )
+
+        map.map { it.value.age * 2 } shouldBeEqual listOf(20,40,60)
+    }
+
     /**
      * map()에 전달하는 변환 함수의 반환 타입이 리스트 등의 컬렉션 타입인 경우가 자주 있고,
      * 그럴 때마다 flatten()을 호출하는 것은 귀찮기 때문에 코틀린은 map()과 flatten()을 합친 flatMap()을 제공한다.
@@ -340,30 +362,6 @@ class CollectionUtils :StringSpec ({
 
         list.indexOfFirst { it == "A" } shouldBeEqual 0
         list.indexOfLast { it == "A" } shouldBeEqual 5
-    }
-
-    "map, mapNotNull" {
-        val array = arrayOf(1, 2, 3, 4, 5)
-        val set = setOf(1, 2, 3, 4, 5)
-
-        array.map { it * 2 } shouldBe arrayOf(2, 4, 6, 8, 10)
-        set.map { it * 2 } shouldBe arrayOf(2, 4, 6, 8, 10)
-
-        val list = listOf(1,null,2,null,3)
-        list.mapNotNull { it?.times(2) } shouldBeEqual listOf(2,4,6)
-
-        data class Person(
-            var name: String,
-            var age: Int
-        )
-
-        val map = mapOf(
-            "one" to Person("one", 10),
-            "two" to Person("two", 20),
-            "three" to Person("three", 30)
-        )
-
-        map.map { it.value.age * 2 } shouldBeEqual listOf(20,40,60)
     }
 
     "sum, sumOf" {
