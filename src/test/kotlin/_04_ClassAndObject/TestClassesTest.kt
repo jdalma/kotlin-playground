@@ -116,4 +116,25 @@ class ClassTest : ShouldSpec ({
         val test = LateInitTest()
         test.nullCheck() shouldBe booleanArrayOf(false,true)
     }
+
+    context("class의 val 필드가 함수를 호출하면 생성자 호출 시점에 초기화 된다.") {
+
+        class Count {
+            var count = 10
+                get() : Int {
+                    return field--
+                }
+        }
+        class Test {
+            private val countObj = Count()
+            private val data = countObj.count
+            fun getData() = this.data
+        }
+
+        val test = Test()
+        test.getData() shouldBe 10
+        test.getData() shouldBe 10
+        test.getData() shouldBe 10
+        test.getData() shouldBe 10
+    }
 })
