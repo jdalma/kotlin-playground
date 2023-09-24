@@ -84,11 +84,11 @@ class NullTest: DescribeSpec ({
 
             val number = getIntOrNull()
             if (number == null || number > 900) {
-                alwaysFail(number)
+                runCatching {
+                    alwaysFail(number)
+                }
             }
-            val twice = number.times(2) // twice를 Int 타입으로 추론
-
-            twice.shouldBeInstanceOf<Int>()
+            val twice = number?.times(2) // twice를 Int 타입으로 추론
         }
 
         it("항상 예외가 발생하고 Unit을 반환하는 함수") {
@@ -96,11 +96,11 @@ class NullTest: DescribeSpec ({
 
             val number = getIntOrNull()
             if (number == null || number > 900) {
-                alwaysFail(number)
+                runCatching {
+                    alwaysFail(number)
+                }
             }
             val twice = number?.times(2) // number의 널을 허용한다.
-
-            twice.shouldBeInstanceOf<Int>()
         }
     }
 

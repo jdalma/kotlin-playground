@@ -113,7 +113,7 @@ class StringTest : StringSpec ({
         // 첫 번째 인자는 문자열의 시작 위치
         // 두 번째 인자는 문자열의 끝나는 위치
         "01234567890".substring(0,1) shouldBeEqual "0"
-        "01234567890".substring(1,6) shouldBeEqual "123456"
+        "01234567890".substring(1,6) shouldBeEqual "12345"
         "01234567890".substring(3,3) shouldBeEqual ""
 
         shouldThrow<StringIndexOutOfBoundsException> { "01234567890".substring(10,20) }
