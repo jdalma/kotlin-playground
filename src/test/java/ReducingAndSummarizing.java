@@ -3,7 +3,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -105,7 +108,6 @@ public class ReducingAndSummarizing {
     }
 
     @Test
-    @DisplayName("음식 타입별로 그룹화")
     void grouping() {
         Map<CaloricLevel, List<Dish>> collect = menu.stream().collect(groupingBy(dish -> {
             if (dish.calories() <= 400) return CaloricLevel.DIET;
@@ -186,5 +188,113 @@ public class ReducingAndSummarizing {
 //          MEAT=Optional[Dish{name='pork', vegetarian=false, calories=800, type=MEAT}],
 //          OTHER=Optional[Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}]
 //        }
+
+        Map<Dish.Type, Dish> mostCaloricByType1 = menu.stream().collect(
+                groupingBy(
+                    Dish::type,
+                    collectingAndThen(maxBy(Comparator.comparingInt(Dish::calories)),Optional::get)
+                )
+        );
+//{
+//  FISH=Dish{name='salmon', vegetarian=false, calories=450, type=FISH},
+//  MEAT=Dish{name='pork', vegetarian=false, calories=800, type=MEAT},
+//  OTHER=Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}
+//}
+        Map<Dish.Type, IntSummaryStatistics> sumCaloricByType = menu.stream().collect(
+                groupingBy(Dish::type, summarizingInt(Dish::calories))
+        );
+//{
+// FISH=IntSummaryStatistics{count=2, sum=750, min=300, average=375.000000, max=450},
+// MEAT=IntSummaryStatistics{count=3, sum=1900, min=400, average=633.333333, max=800},
+// OTHER=IntSummaryStatistics{count=4, sum=1550, min=120, average=387.500000, max=550}
+//}
+        Map<Dish.Type, Set<CaloricLevel>> caloricLevelsByType = menu.stream().collect(
+                groupingBy(
+                        Dish::type,
+                        mapping(dish -> {
+                                    if (dish.calories() <= 400) return CaloricLevel.DIET;
+                                    else if (dish.calories() <= 700) return CaloricLevel.NORMAL;
+                                    else return CaloricLevel.FAT;
+                                },
+                                toSet()
+                        )
+                )
+        );
+//{
+// FISH=[DIET, NORMAL],
+// MEAT=[FAT, DIET, NORMAL],
+// OTHER=[DIET, NORMAL]
+//}
+
+        Map<Dish.Type, Set<CaloricLevel>> caloricLevelsByType2 = menu.stream().collect(
+                groupingBy(
+                        Dish::type,
+                        mapping(dish -> {
+                                    if (dish.calories() <= 400) return CaloricLevel.DIET;
+                                    else if (dish.calories() <= 700) return CaloricLevel.NORMAL;
+                                    else return CaloricLevel.FAT;
+                                },
+                                toCollection(HashSet::new)
+                        )
+                )
+        );
+    }
+    @Test
+    void partitioning() {
+        Map<Boolean, List<Dish>> partitionVegetarian = menu.stream().collect(partitioningBy(Dish::vegetarian));
+//{
+// false=[Dish{name='pork', vegetarian=false, calories=800, type=MEAT}, Dish{name='beef', vegetarian=false, calories=700, type=MEAT}, ...],
+// true=[Dish{name='french fries', vegetarian=true, calories=530, type=OTHER}, Dish{name='rice', vegetarian=true, calories=350, type=OTHER}, ...]
+//}
+        Map<Boolean, Map<Dish.Type, List<Dish>>> vegetarianDishesByType =
+                menu.stream().collect(
+                    partitioningBy(
+                        Dish::vegetarian,
+                        groupingBy(Dish::type)
+                    )
+                );
+
+//{
+// false={
+//      FISH=[Dish{name='prawns', vegetarian=false, calories=300, type=FISH}, Dish{name='salmon', vegetarian=false, calories=450, type=FISH}],
+//      MEAT=[Dish{name='pork', vegetarian=false, calories=800, type=MEAT}, Dish{name='beef', vegetarian=false, calories=700, type=MEAT}, ...]
+// },
+// true={
+//      OTHER=[Dish{name='french fries', vegetarian=true, calories=530, type=OTHER}, Dish{name='rice', vegetarian=true, calories=350, type=OTHER}, ...]
+//  }
+//}
+        Map<Boolean, Dish> mostCaloricPartitionedByVegetarian = menu.stream().collect(
+            partitioningBy(
+                Dish::vegetarian,
+                collectingAndThen(
+                    maxBy(Comparator.comparingInt(Dish::calories)),
+                    Optional::get
+                )
+            )
+        );
+//{
+// false=Dish{name='pork', vegetarian=false, calories=800, type=MEAT},
+// true=Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}
+//}
+    }
+
+    private boolean isPrime(int candidate) {
+        int candidateRoot = (int) Math.sqrt((double) candidate);
+        return IntStream
+                .rangeClosed(2, candidateRoot)
+                .noneMatch(i -> candidate % i == 0);
+    }
+
+    @Test
+    void isPrimeTest() {
+        int n = 11;
+        Map<Boolean, List<Integer>> collect = IntStream
+                .rangeClosed(2, n)
+                .boxed()
+                .collect(partitioningBy(this::isPrime));
+//{
+// false=[4, 6, 8, 9, 10],
+// true=[2, 3, 5, 7, 11]
+//}
     }
 }

@@ -132,7 +132,7 @@ class StringTest : StringSpec ({
                 "My nam!e is jeongdalMa"
     }
 
-    "문자열 형싟화" {
+    "문자열 형식화" {
         val test = "W %.4f".format(10.0 / 3.0)
 
         test shouldBeEqual "W 3.3333"
