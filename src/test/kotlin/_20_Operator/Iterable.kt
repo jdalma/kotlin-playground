@@ -2,9 +2,9 @@ package _20_Operator
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.equals.shouldBeEqual
-import io.kotest.matchers.shouldBe
+import kotlin.collections.Iterable
 
-class IterableTest: BehaviorSpec ({
+class Iterable: BehaviorSpec ({
 
     val size = 5
     val sum = 15
