@@ -1,10 +1,10 @@
+import modernJava.CaloricLevel;
+import modernJava.Dish;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -60,6 +60,15 @@ public class ReducingAndSummarizing {
 
         assertThat(collect3.get().calories()).isEqualTo(120);
         assertThat(collect4.get().calories()).isEqualTo(120);
+    }
+
+    @Test
+    void takeWhile() {
+        List<Dish> sliceMenu1 =
+                specialMenu.stream()
+                        .takeWhile(dish -> dish.calories() < 320)
+                        .toList();
+        assertThat(sliceMenu1.size()).isEqualTo(2);
     }
 
     @Test
@@ -119,8 +128,8 @@ public class ReducingAndSummarizing {
                 .collect(groupingBy(Dish::type));
 
 //        {
-//          MEAT=[Dish{name='pork', vegetarian=false, calories=800, type=MEAT}, Dish{name='beef', vegetarian=false, calories=700, type=MEAT}]
-//          OTHER=[Dish{name='french fries', vegetarian=true, calories=530, type=OTHER}, Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}]
+//          MEAT=[modernJava.Dish{name='pork', vegetarian=false, calories=800, type=MEAT}, modernJava.Dish{name='beef', vegetarian=false, calories=700, type=MEAT}]
+//          OTHER=[modernJava.Dish{name='french fries', vegetarian=true, calories=530, type=OTHER}, modernJava.Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}]
 //        }
         
         Map<Dish.Type, List<Dish>> collect2 = menu.stream()
@@ -130,18 +139,18 @@ public class ReducingAndSummarizing {
                 ));
 //        {
 //          FISH=[],
-//          MEAT=[Dish{name='pork', vegetarian=false, calories=800, type=MEAT}, Dish{name='beef', vegetarian=false, calories=700, type=MEAT}],
-//          OTHER=[Dish{name='french fries', vegetarian=true, calories=530, type=OTHER}, Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}]
+//          MEAT=[modernJava.Dish{name='pork', vegetarian=false, calories=800, type=MEAT}, modernJava.Dish{name='beef', vegetarian=false, calories=700, type=MEAT}],
+//          OTHER=[modernJava.Dish{name='french fries', vegetarian=true, calories=530, type=OTHER}, modernJava.Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}]
 //        }
 
         Map<Boolean, Map<Dish.Type, List<Dish>>> collect3 = menu.stream().collect(partitioningBy(Dish::vegetarian, groupingBy(Dish::type)));
 //      {
 //        false={
-//          MEAT=[Dish{name='pork', vegetarian=false, calories=800, type=MEAT}, Dish{name='beef', vegetarian=false, calories=700, type=MEAT}, Dish{name='chicken', vegetarian=false, calories=400, type=MEAT}],
-//          FISH=[Dish{name='prawns', vegetarian=false, calories=300, type=FISH}, Dish{name='salmon', vegetarian=false, calories=450, type=FISH}]
+//          MEAT=[modernJava.Dish{name='pork', vegetarian=false, calories=800, type=MEAT}, modernJava.Dish{name='beef', vegetarian=false, calories=700, type=MEAT}, modernJava.Dish{name='chicken', vegetarian=false, calories=400, type=MEAT}],
+//          FISH=[modernJava.Dish{name='prawns', vegetarian=false, calories=300, type=FISH}, modernJava.Dish{name='salmon', vegetarian=false, calories=450, type=FISH}]
 //        },
 //        true={
-//          OTHER=[Dish{name='french fries', vegetarian=true, calories=530, type=OTHER}, Dish{name='rice', vegetarian=true, calories=350, type=OTHER}, Dish{name='season fruit', vegetarian=true, calories=120, type=OTHER}, Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}]
+//          OTHER=[modernJava.Dish{name='french fries', vegetarian=true, calories=530, type=OTHER}, modernJava.Dish{name='rice', vegetarian=true, calories=350, type=OTHER}, modernJava.Dish{name='season fruit', vegetarian=true, calories=120, type=OTHER}, modernJava.Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}]
 //        }
 //      }
 
@@ -161,17 +170,17 @@ public class ReducingAndSummarizing {
         );
 //        {
 //          FISH={
-//              DIET=[Dish{name='prawns', vegetarian=false, calories=300, type=FISH}],
-//              NORMAL=[Dish{name='salmon', vegetarian=false, calories=450, type=FISH}]
+//              DIET=[modernJava.Dish{name='prawns', vegetarian=false, calories=300, type=FISH}],
+//              NORMAL=[modernJava.Dish{name='salmon', vegetarian=false, calories=450, type=FISH}]
 //          },
 //          MEAT={
-//              FAT=[Dish{name='pork', vegetarian=false, calories=800, type=MEAT}],
-//              DIET=[Dish{name='chicken', vegetarian=false, calories=400, type=MEAT}],
-//              NORMAL=[Dish{name='beef', vegetarian=false, calories=700, type=MEAT}]
+//              FAT=[modernJava.Dish{name='pork', vegetarian=false, calories=800, type=MEAT}],
+//              DIET=[modernJava.Dish{name='chicken', vegetarian=false, calories=400, type=MEAT}],
+//              NORMAL=[modernJava.Dish{name='beef', vegetarian=false, calories=700, type=MEAT}]
 //          },
 //          OTHER={
-//              DIET=[Dish{name='rice', vegetarian=true, calories=350, type=OTHER}, Dish{name='season fruit', vegetarian=true, calories=120, type=OTHER}],
-//              NORMAL=[Dish{name='french fries', vegetarian=true, calories=530, type=OTHER}, Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}]
+//              DIET=[modernJava.Dish{name='rice', vegetarian=true, calories=350, type=OTHER}, modernJava.Dish{name='season fruit', vegetarian=true, calories=120, type=OTHER}],
+//              NORMAL=[modernJava.Dish{name='french fries', vegetarian=true, calories=530, type=OTHER}, modernJava.Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}]
 //          }
 //       }
 
@@ -184,9 +193,9 @@ public class ReducingAndSummarizing {
                 groupingBy(Dish::type, maxBy(Comparator.comparingInt(Dish::calories)))
         );
 //        {
-//          FISH=Optional[Dish{name='salmon', vegetarian=false, calories=450, type=FISH}],
-//          MEAT=Optional[Dish{name='pork', vegetarian=false, calories=800, type=MEAT}],
-//          OTHER=Optional[Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}]
+//          FISH=Optional[modernJava.Dish{name='salmon', vegetarian=false, calories=450, type=FISH}],
+//          MEAT=Optional[modernJava.Dish{name='pork', vegetarian=false, calories=800, type=MEAT}],
+//          OTHER=Optional[modernJava.Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}]
 //        }
 
         Map<Dish.Type, Dish> mostCaloricByType1 = menu.stream().collect(
@@ -196,9 +205,9 @@ public class ReducingAndSummarizing {
                 )
         );
 //{
-//  FISH=Dish{name='salmon', vegetarian=false, calories=450, type=FISH},
-//  MEAT=Dish{name='pork', vegetarian=false, calories=800, type=MEAT},
-//  OTHER=Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}
+//  FISH=modernJava.Dish{name='salmon', vegetarian=false, calories=450, type=FISH},
+//  MEAT=modernJava.Dish{name='pork', vegetarian=false, calories=800, type=MEAT},
+//  OTHER=modernJava.Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}
 //}
         Map<Dish.Type, IntSummaryStatistics> sumCaloricByType = menu.stream().collect(
                 groupingBy(Dish::type, summarizingInt(Dish::calories))
@@ -243,8 +252,8 @@ public class ReducingAndSummarizing {
     void partitioning() {
         Map<Boolean, List<Dish>> partitionVegetarian = menu.stream().collect(partitioningBy(Dish::vegetarian));
 //{
-// false=[Dish{name='pork', vegetarian=false, calories=800, type=MEAT}, Dish{name='beef', vegetarian=false, calories=700, type=MEAT}, ...],
-// true=[Dish{name='french fries', vegetarian=true, calories=530, type=OTHER}, Dish{name='rice', vegetarian=true, calories=350, type=OTHER}, ...]
+// false=[modernJava.Dish{name='pork', vegetarian=false, calories=800, type=MEAT}, modernJava.Dish{name='beef', vegetarian=false, calories=700, type=MEAT}, ...],
+// true=[modernJava.Dish{name='french fries', vegetarian=true, calories=530, type=OTHER}, modernJava.Dish{name='rice', vegetarian=true, calories=350, type=OTHER}, ...]
 //}
         Map<Boolean, Map<Dish.Type, List<Dish>>> vegetarianDishesByType =
                 menu.stream().collect(
@@ -256,11 +265,11 @@ public class ReducingAndSummarizing {
 
 //{
 // false={
-//      FISH=[Dish{name='prawns', vegetarian=false, calories=300, type=FISH}, Dish{name='salmon', vegetarian=false, calories=450, type=FISH}],
-//      MEAT=[Dish{name='pork', vegetarian=false, calories=800, type=MEAT}, Dish{name='beef', vegetarian=false, calories=700, type=MEAT}, ...]
+//      FISH=[modernJava.Dish{name='prawns', vegetarian=false, calories=300, type=FISH}, modernJava.Dish{name='salmon', vegetarian=false, calories=450, type=FISH}],
+//      MEAT=[modernJava.Dish{name='pork', vegetarian=false, calories=800, type=MEAT}, modernJava.Dish{name='beef', vegetarian=false, calories=700, type=MEAT}, ...]
 // },
 // true={
-//      OTHER=[Dish{name='french fries', vegetarian=true, calories=530, type=OTHER}, Dish{name='rice', vegetarian=true, calories=350, type=OTHER}, ...]
+//      OTHER=[modernJava.Dish{name='french fries', vegetarian=true, calories=530, type=OTHER}, modernJava.Dish{name='rice', vegetarian=true, calories=350, type=OTHER}, ...]
 //  }
 //}
         Map<Boolean, Dish> mostCaloricPartitionedByVegetarian = menu.stream().collect(
@@ -273,8 +282,8 @@ public class ReducingAndSummarizing {
             )
         );
 //{
-// false=Dish{name='pork', vegetarian=false, calories=800, type=MEAT},
-// true=Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}
+// false=modernJava.Dish{name='pork', vegetarian=false, calories=800, type=MEAT},
+// true=modernJava.Dish{name='pizza', vegetarian=true, calories=550, type=OTHER}
 //}
     }
 
