@@ -4,8 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.function.BiFunction;
+
+import static org.assertj.core.api.Assertions.*;
 
 public class Collection {
 
@@ -28,16 +29,16 @@ public class Collection {
 
     @Test
     void removeIf() {
-        Assertions.assertThat(menu.size()).isEqualTo(9);
+        assertThat(menu.size()).isEqualTo(9);
 
         menu.removeIf(Dish::vegetarian);
-        Assertions.assertThat(menu.size()).isEqualTo(5);
+        assertThat(menu.size()).isEqualTo(5);
     }
 
     @Test
     void replaceAll() {
         List<Dish> before = menu.stream().filter(dish -> dish.calories() <= 490).toList();
-        Assertions.assertThat(before.size()).isEqualTo(5);
+        assertThat(before.size()).isEqualTo(5);
 
         menu.replaceAll(dish -> {
             if (dish.calories() > 500) {
@@ -47,19 +48,19 @@ public class Collection {
         });
 
         List<Dish> after = menu.stream().filter(dish -> dish.calories() <= 490).toList();
-        Assertions.assertThat(after.size()).isEqualTo(9);
+        assertThat(after.size()).isEqualTo(9);
     }
 
     @Test
     void mapSort() {
-        Map<String, Integer> ageOfFriends1 = Map.of("A", 1, "B", 2, "C", 3);
-        Map<String, Integer> ageOfFriends2 = Map.ofEntries(
+        Map<String, Integer> map1 = Map.of("A", 1, "B", 2, "C", 3);
+        Map<String, Integer> map2 = Map.ofEntries(
                 Map.entry("A",1),
                 Map.entry("B",2),
                 Map.entry("C",3)
         );
 
-        List<Map.Entry<String, Integer>> collect = ageOfFriends1.entrySet()
+        List<Map.Entry<String, Integer>> collect = map1.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByKey())
                 .toList();
@@ -67,10 +68,36 @@ public class Collection {
 
     @Test
     void computeIfAbsent() {
-        Map<String, Integer> ageOfFriends = new HashMap<>(Map.of("A", 1, "B", 2, "C", 3));
+        Map<String, Integer> map = new HashMap<>(Map.of("A", 1, "B", 2, "C", 3));
         // 제공된 키에 해당하는 값이 없으면 (값이 없거나 널) 값을 계산해 맵에 추가하고 키가 존재하면 기존 값을 반환한다.
         // 정보를 캐시할 때 사용할 수 있다.
-        Assertions.assertThat(ageOfFriends.computeIfAbsent("A", key -> Integer.MAX_VALUE)).isEqualTo(1);
-        Assertions.assertThat(ageOfFriends.computeIfAbsent("D", key -> Integer.MAX_VALUE)).isEqualTo(Integer.MAX_VALUE);
+        assertThat(map.computeIfAbsent("A", key -> Integer.MAX_VALUE)).isEqualTo(1);
+        assertThat(map.computeIfAbsent("D", key -> Integer.MAX_VALUE)).isEqualTo(Integer.MAX_VALUE);
+    }
+
+    @Test
+    void computeIfPresent() {
+        Map<String, Integer> map = new HashMap<>(Map.of("A", 1, "B", 2, "C", 3));
+        BiFunction<String, Integer, Integer> ifPresent = (key, value) -> map.get(key) + 10;
+        map.computeIfPresent("A", ifPresent);
+        map.computeIfPresent("D", ifPresent);
+
+        assertThat(map.get("A")).isEqualTo(11);
+        assertThat(map.get("D")).isEqualTo(null);
+    }
+
+    @Test
+    void merge() {
+        Map<String, Integer> map1 = new HashMap<>(Map.of("A", 1, "B", 2, "C", 3));
+        Map<String, Integer> map2 = new HashMap<>(Map.of("A", 1, "B", 2, "D", 3));
+
+        map2.forEach((k, v) -> {
+            map1.merge(k, v, Integer::sum);
+        });
+
+        assertThat(map1.get("A")).isEqualTo(2);
+        assertThat(map1.get("B")).isEqualTo(4);
+        assertThat(map1.get("C")).isEqualTo(3);
+        assertThat(map1.get("D")).isEqualTo(3);
     }
 }
