@@ -3,11 +3,13 @@ package _udemy_Multithreading;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import static _udemy_Multithreading.HackerGame.MAX_PASSWORD;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ThreadTest {
 
@@ -89,5 +91,65 @@ public class ThreadTest {
 //        threads.forEach(Runnable::run);
         threads.forEach(Thread::start);
         Thread.sleep(15000);
+    }
+
+    @Test
+    void interrupted() {
+        Runnable blockingTask = () -> {
+            try {
+                Thread.sleep(50_000);
+            } catch (InterruptedException e) {
+                System.out.println("Blocking Task Exit");
+                throw new RuntimeException(e);
+            }
+        };
+
+        Thread thread = new Thread(blockingTask);
+        thread.start();
+        thread.interrupt();
+    }
+
+    private record LongComputationTask(BigInteger base, BigInteger power) implements Runnable {
+        @Override
+        public void run() {
+            System.out.printf("%d^%d = %d\n", base, power, pow(base, power));
+        }
+
+        private BigInteger pow(BigInteger base, BigInteger power) {
+            BigInteger result = BigInteger.ONE;
+            for (BigInteger i = BigInteger.ZERO; i.compareTo(power) != 0; i = i.add(BigInteger.ONE)) {
+                if (Thread.currentThread().isInterrupted()) {
+                    System.out.println("Interrupted !!!");
+                    return BigInteger.ZERO;
+                }
+                result = result.multiply(base);
+            }
+            return result;
+        }
+    }
+
+    @Test
+    void interrupted2() {
+        LongComputationTask longComputationTask = new LongComputationTask(
+            new BigInteger("200"),
+            new BigInteger("1000")
+        );
+
+        Thread thread = new Thread(longComputationTask);
+        thread.start();
+        thread.interrupt();
+    }
+
+    @Test
+    void daemonThread() {
+        LongComputationTask longComputationTask = new LongComputationTask(
+                new BigInteger("200"),
+                new BigInteger("1000")
+        );
+
+        Thread thread = new Thread(longComputationTask);
+        thread.setDaemon(true);
+        thread.start();
+
     }
 }
