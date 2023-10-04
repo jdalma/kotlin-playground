@@ -37,6 +37,12 @@ class _02_코틀린으로_함수형_프로그래밍_시작하기: StringSpec ({
         fun <A, B, C> curry(f: (A, B) -> C) : (A) -> (B) -> C =
             { a: A -> { b: B -> f(a, b) } }
 
+        fun <P1, P2, RETURN> ((P1,P2) -> RETURN).curry(p1: P1) : (P2) -> RETURN =
+            { p2 -> this(p1,p2) }
+
+        val extendFunction : (Int, Int) -> String = { a, b -> "$a : ${a+b}" }
+        extendFunction.curry(10)(20) shouldBeEqual "10 : 30"
+
         val f: (Int) -> (Int) -> String = curry { a,b -> "$a : ${a+b}"}
 
         val f1: (Int) -> String = f(1)
