@@ -1,3 +1,4 @@
+@file:Suppress("UNCHECKED_CAST")
 package kotlinfp
 
 import io.kotest.core.spec.style.StringSpec
@@ -46,7 +47,7 @@ class Cafe {
     }
 
     fun <PRODUCT: Product> getProduct(product: KClass<PRODUCT>) : PRODUCT =
-        factories[product]!! as PRODUCT
+        factories[product]!!() as PRODUCT
 
     // buy, payment, receive 이 세 단계에 대한 구분은 반환 타입으로 구분한다.
     // buy 를 거쳤다면 Charge 타입이어야 하고, payment 를 거쳤다면 Receipt 타입이어야 한다.
@@ -69,21 +70,6 @@ class Cafe {
         factories[receipt.product] ?: return null
         return Array(receipt.qty) { getProduct(receipt.product) }
     }
-}
-
-fun main() {
-    val cafe: Cafe = Cafe().also {
-        it.addFactory(Americano(), CafeLatte())
-    }
-    val myCard = object :CreditCard {}
-    val americano = cafe.buy(myCard, 2, Americano::class)?.let { charge ->
-        cafe.payment(charge)?.let {
-                receipt -> cafe.receive(receipt)
-        }
-    }
-
-    americano?.size?.shouldBeEqual(2)
-    americano?.first()?.price?.shouldBeEqual(1000.0)
 }
 
 class _01_카페: StringSpec({

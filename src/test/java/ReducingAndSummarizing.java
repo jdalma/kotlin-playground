@@ -1,10 +1,16 @@
+import io.kotest.core.spec.style.AnnotationSpec;
 import modernJava.CaloricLevel;
 import modernJava.Dish;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -96,6 +102,15 @@ public class ReducingAndSummarizing {
     void string() {
         String collect = menu.stream().map(Dish::name).collect(joining(", "));
         assertThat(collect).isEqualTo("pork, beef, chicken, french fries, rice, season fruit, pizza, prawns, salmon");
+
+        try {
+            List<String> lines = Files.lines(Paths.get(".gitignore"))
+                    .filter(string -> string.length() > 10)
+                    .toList();
+            System.out.println(lines);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -247,7 +262,42 @@ public class ReducingAndSummarizing {
                         )
                 )
         );
+// {
+//  MEAT=[DIET, FAT, NORMAL],
+//  FISH=[DIET, NORMAL],
+//  OTHER=[DIET, NORMAL]
+// }
     }
+
+    @Test
+    void groupingBuilder() {
+        Collector<Dish, ?, Map<Dish.Type, Map<Boolean, List<Dish>>>> dishMapCollector1 = groupingBy(Dish::type, groupingBy(Dish::vegetarian));
+        Map<Dish.Type, Map<Boolean, List<Dish>>> collect1 = menu.stream().collect(dishMapCollector1);
+
+        Collector<? super Dish, ?, Map<Dish.Type, Map<Boolean, List<Dish>>>> dishMapCollector2 = GroupingBuilder.groupOn(Dish::vegetarian).after(Dish::type).get();
+        Map<Dish.Type, Map<Boolean, List<Dish>>> collect2 = menu.stream().collect(dishMapCollector2);
+    }
+
+    public static class GroupingBuilder<T, D, K> {
+        private final Collector<? super T, ?, Map<K, D>> collector;
+        private GroupingBuilder(Collector<? super T, ?, Map<K, D>> collector) {
+            this.collector = collector;
+        }
+
+        public Collector<? super T, ?, Map<K,D>> get() {
+            return collector;
+        }
+
+        // PECS
+        public <J> GroupingBuilder<T, Map<K, D>, J> after(Function<? super T, ? extends J> classifier) {
+            return new GroupingBuilder<>(groupingBy(classifier, collector));
+        }
+
+        public static <T, D, K> GroupingBuilder<T, List<T>, K> groupOn(Function<? super T, ? extends K> classifier) {
+            return new GroupingBuilder<>(groupingBy(classifier));
+        }
+    }
+
     @Test
     void partitioning() {
         Map<Boolean, List<Dish>> partitionVegetarian = menu.stream().collect(partitioningBy(Dish::vegetarian));
