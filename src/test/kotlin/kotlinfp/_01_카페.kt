@@ -3,6 +3,7 @@ package kotlinfp
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.equals.shouldBeEqual
+import java.lang.RuntimeException
 import kotlin.reflect.KClass
 
 interface CreditCard
