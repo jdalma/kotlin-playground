@@ -19,6 +19,20 @@ sealed class TestListUtil<out A> {
             return if (aa.isEmpty()) Nil else Cons(aa[0], of(*tail))
         }
 
+        fun <A> empty(): TestList<A> = Nil
+
+        fun <A, B> foldRight(xs: TestList<A>, z: B, f: (A,B) -> B): B =
+            when(xs) {
+                is Nil -> z
+                is Cons -> f(xs.head, foldRight(xs.tail, z, f))
+            }
+
+        fun sum2(ints: TestList<Int>): Int =
+            foldRight(ints, 0) { a, b -> a + b }
+
+        fun product2(doubles: TestList<Double>): Double =
+            foldRight(doubles, 1.0) {a, b -> a * b }
+
         fun sum(ints: TestList<Int>): Int =
             when (ints) {
                 is Nil -> 0
@@ -104,5 +118,19 @@ class _03_함수형_데이터_구조: StringSpec ({
 
         val list = TestListUtil.of("A", "B", "C", "D")
         list.init() shouldBeEqual TestListUtil.of("A", "B", "C")
+    }
+
+    "3.6 foldRight로 구현된 product가 리스트 원소로 0.0을 만나면 재귀를 즉시 중단하고 결과를 돌려줄 수 있는가? 긴 리스트에 대해 쇼트 서킷을 제공할 수 있으면 어떤 장점이 있을까?" {}
+
+    "3.8 foldRight를 사용해 리스트 길이를 계산하라" {
+        fun <A> TestList<A>.length(): Int = TODO()
+    }
+
+    "3.9 foldRight는 꼬리재귀가 아니므로 stack-safe 하지 않다. foldLeft를 꼬리 재귀로 작성하라" {
+        tailrec fun <A, B> TestList<A>.foldLeft(z: B, f: (B,A) -> B): B = TODO()
+    }
+
+    "3.10 foldLeft를 사용해 sum, product, 리스트 길이 계산 함수를 작성하라" {
+        TODO()
     }
 })
