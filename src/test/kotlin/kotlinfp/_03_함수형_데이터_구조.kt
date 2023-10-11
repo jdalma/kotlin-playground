@@ -3,31 +3,39 @@ package kotlinfp
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
+import kotlinfp.TestList.*
 import kotlinfp.TestList.Companion.append
 import kotlinfp.TestList.Companion.foldLeft
 import kotlinfp.TestList.Companion.foldRight
-import kotlinfp.TestList.Companion.of
-import java.util.function.Predicate
 
-object Nil: TestList<Nothing>()
-data class Cons<out A>(
-    val head: A,
-    val tail: TestList<A>
-): TestList<A>()
 typealias Identity<B> = (B) -> B
 sealed class TestList<out A> {
-    companion object {
-        fun <A> of(vararg aa: A) : TestList<A> {
-            val tail = aa.sliceArray(1 until aa.size)
-            return if (aa.isEmpty()) Nil else Cons(aa[0], of(*tail))
-        }
+    object Nil: TestList<Nothing>()
+    data class Cons<out A>@PublishedApi internal constructor(
+        @PublishedApi internal val head: A,
+        @PublishedApi internal val tail: TestList<A>
+    ): TestList<A>()
 
+    companion object {
+
+        operator fun <A> invoke(vararg items:A): TestList<A> = items.foldRight(invoke(), ::Cons)
+        operator fun <A> invoke(): TestList<A> = Nil
+
+        fun <A> TestList(vararg aa: A) : TestList<A> {
+            val tail = aa.sliceArray(1 until aa.size)
+            return if (aa.isEmpty()) Nil else Cons(aa[0], TestList(*tail))
+        }
         fun <A> empty(): TestList<A> = Nil
 
         tailrec fun <A, B> foldLeft(xs: TestList<A>, z: B, f: (B, A) -> B): B =
             when (xs) {
                 is Nil -> z
-                is Cons -> foldLeft(xs.tail, f(z, xs.head), f)
+                is Cons -> {
+                    println("foldLeft before xs: $xs , base: $z")
+                    val foldLeft = foldLeft(xs.tail, f(z, xs.head), f)
+                    println("foldLeft after $foldLeft")
+                    foldLeft
+                }
             }
 
         fun <A, B> foldRight(xs: TestList<A>, z: B, f: (A,B) -> B): B =
@@ -74,49 +82,59 @@ class _03_함수형_데이터_구조: StringSpec ({
         fun <A> TestList<A>.tail() : TestList<A> =
             when(this) {
                 is Cons -> this.tail
-                is Nil -> Nil
+                is Nil -> this
             }
-        of("A", "B", "C", "D").tail() shouldBeEqual of("B", "C", "D")
-        of(Nil).tail() shouldBeEqual Nil
+        TestList("A", "B", "C", "D").tail() shouldBeEqual TestList("B", "C", "D")
+        TestList(Nil).tail() shouldBeEqual Nil
     }
 
     "3.2 List 첫 원소를 다른 값으로 대치하는 setHead 함수를 만들어라" {
         fun <A> TestList<A>.setHead(x: A) : TestList<A> =
             when(this) {
                 is Cons -> Cons(x, this.tail)
-                is Nil -> Nil
+                is Nil -> this
             }
-        of(1, 2, 3, 4).setHead(5) shouldBeEqual of(5, 2, 3, 4)
-        of(Nil).setHead(5) shouldBeEqual Nil
+
+        fun <A> TestList<A>.addFirst(x: A) : TestList<A> =
+            when(this) {
+                is Cons -> Cons(x, this)
+                is Nil -> this
+            }
+
+        TestList(1, 2, 3, 4).setHead(5) shouldBeEqual TestList(5, 2, 3, 4)
+        TestList(Nil).setHead(5) shouldBeEqual TestList(5)
     }
 
     "3.3 List 맨 앞부터 n개 원소를 제거하는 drop 함수를 만들어라" {
         fun <A> TestList<A>.drop(n: Int) : TestList<A> =
-            if (n <= 0) this
-            else when(this) {
-                is Cons -> this.tail.drop(n - 1)
-                is Nil -> Nil
-            }
-        val list = of(1, 2, 3, 4)
-        list.drop(2) shouldBeEqual of(3, 4)
+            if(n > 0 && this is Cons) this.tail.drop(n - 1)
+            else this
+//            if (n <= 0) this
+//            else when(this) {
+//                is Cons -> this.tail.drop(n - 1)
+//                is Nil -> Nil
+//            }
+
+        val list = TestList(1, 2, 3, 4)
+        list.drop(2) shouldBeEqual TestList(3, 4)
         list.drop(4) shouldBeEqual Nil
         list.drop(5) shouldBeEqual Nil
     }
 
     "3.4 List 맨 앞에서부터 주어진 술어를 만족(술어 함수가 true를 반환)하는 연속적인 원소를 삭제하는 dropWhile 함수를 만들어라" {
-        fun <A> TestList<A>.dropWhile(predicate: Predicate<A>) : TestList<A> =
+        fun <A> TestList<A>.dropWhile(predicate: (A) -> Boolean) : TestList<A> =
             when(this) {
                 is Cons ->
-                    if(predicate.test(this.head)) this.tail.dropWhile(predicate)
+                    if(predicate(this.head)) this.tail.dropWhile(predicate)
                     else this
-                is Nil -> Nil
+                is Nil -> this
             }
 
         val isEven : (Int) -> Boolean = { it % 2 == 0 }
-        val list = of(2,4,6,8,5,10,20)
-        list.dropWhile(isEven) shouldBeEqual of(5,10,20)
+        val list = TestList(2,4,6,8,5,10,20)
+        list.dropWhile(isEven) shouldBeEqual TestList(5,10,20)
 
-        val list1 = of(2,4,6)
+        val list1 = TestList(2,4,6)
         list1.dropWhile(isEven) shouldBeEqual Nil
     }
 
@@ -124,23 +142,57 @@ class _03_함수형_데이터_구조: StringSpec ({
         fun <A> TestList<A>.init() : TestList<A> =
             when(this) {
                 is Cons ->
-                    if(this.tail == Nil) Nil
+                    if(this.tail is Nil) Nil    // 현재 this의 head는 있지만 Nil을 반환하는 것이 마지막 원소를 제거하는 것이다.
                     else Cons(this.head, this.tail.init())
-                is Nil -> Nil
+                is Nil -> this
             }
 
-        val list = of("A", "B", "C", "D")
-        list.init() shouldBeEqual of("A", "B", "C")
+        val list = TestList("A", "B", "C", "D")
+        list.init() shouldBeEqual TestList("A", "B", "C")
     }
 
-    "3.6 foldRight로 구현된 product가 리스트 원소로 0.0을 만나면 재귀를 즉시 중단하고 결과를 돌려줄 수 있는가? 긴 리스트에 대해 쇼트 서킷을 제공할 수 있으면 어떤 장점이 있을까?" {}
+    "3.6 foldRight로 구현된 product가 리스트 원소로 0.0을 만나면 재귀를 즉시 중단하고 결과를 돌려줄 수 있는가? 긴 리스트에 대해 쇼트 서킷을 제공할 수 있으면 어떤 장점이 있을까?" {
+        fun <A, ACC> TestList<A>.foldRight(base: ACC, f:(A, ACC) -> ACC) : ACC =
+            when(this) {
+                is Cons -> f(this.head, this.tail.foldRight(base, f))
+                is Nil -> base
+            }
+
+        // 버블링, 스택
+        // 정방향은 함수를 만들어내고 역방향은 해소를한다.
+        TestList(1,2,3).foldRight(1) { i, acc -> i + acc } shouldBeEqual 7
+
+        // 정답은 "구현할 수 있다."
+        // 아래는 tailrec으로 해결한 것이다.
+        tailrec fun <A, ACC> TestList<A>._foldRight(base:ACC, origin: (A, ACC) -> ACC, f: (ACC) -> ACC) : ACC =
+            when(this) {
+                is Cons -> when(tail) {
+                    is Cons -> tail._foldRight(base, origin) { acc -> f(origin(head, acc)) }
+                    is Nil -> f(origin(head, base))
+                }
+                is Nil -> base
+            }
+
+        fun <A, ACC> TestList<A>.foldRightTailrec(base:ACC, f: (A, ACC) -> ACC) : ACC =
+            _foldRight(base, f) { it }
+
+        // 아래는 쇼트서킷이다.
+        fun <A, B> foldRight2(xs: TestList<A>, acc: B, f: (A, B) -> B, check: (A) -> Boolean): B = when (xs) {
+            is Nil -> acc
+            is Cons ->
+                when (check(xs.head)) {
+                    true -> acc
+                    false -> f(xs.head, foldRight2(xs.tail, acc, f, check))
+                }
+        }
+    }
 
     "3.8 foldRight를 사용해 리스트 길이를 계산하라" {
         fun <A> TestList<A>.length(): Int = foldRight(this, 0)
             { _: A, length: Int  -> 1 + length}
 
-        of(1, 2, 3, 4).length() shouldBeEqual 4
-        of(Nil).length() shouldBeEqual 1
+        TestList(1, 2, 3, 4).length() shouldBeEqual 4
+        TestList(Nil).length() shouldBeEqual 1
         Nil.length() shouldBeEqual 0
     }
 
@@ -154,7 +206,7 @@ class _03_함수형_데이터_구조: StringSpec ({
             return loop(this, z, f)
         }
 
-        val strings = of("A","B","C","D","E")
+        val strings = TestList("A","B","C","D","E")
         val acc : (String, String) -> String = { f, s -> "f($f,$s)" }
 
         val foldLeft = strings.foldLeft("END",acc)
@@ -178,7 +230,7 @@ class _03_함수형_데이터_구조: StringSpec ({
         val product : (Int, Int) -> Int = { i1, i2 -> i1 * i2 }
         val length : (Int, Int) -> Int = { length, _ -> length + 1 }
 
-        val list = of(1,2,3,4,5)
+        val list = TestList(1,2,3,4,5)
 
         list.foldLeft(0, sum) shouldBeEqual 15
         list.foldLeft(1, product) shouldBeEqual 120
@@ -198,8 +250,8 @@ class _03_함수형_데이터_구조: StringSpec ({
         fun <A> TestList<A>.reverse(): TestList<A> =
             this.foldLeft(TestList.empty()) { list: TestList<A>, e: A -> Cons(e, list) }
 
-        val list = of(1,2,3,4,5)
-        list.reverse() shouldBeEqual of(5,4,3,2,1)
+        val list = TestList(1,2,3,4,5)
+        list.reverse() shouldBeEqual TestList(5,4,3,2,1)
     }
 
     "3.12 foldLeft를 foldRight를 사용해 작성하라. foldRight를 foldLeft로 구현하면 꼬리 재귀로 구현할 수 있다." {
@@ -240,7 +292,7 @@ class _03_함수형_데이터_구조: StringSpec ({
             val chain: Identity<B> = foldRight(list, identity, combinerDelayer)
             return chain(acc)
         }
-        val list = of("a", "b", "c", "d", "e")
+        val list = TestList("a", "b", "c", "d", "e")
         val acc : (String, String) -> String = {a, b -> "f($a,$b)"}
 
         foldLeftReverse(list,"end",acc) shouldBeEqual "f(f(f(f(f(end,a),b),c),d),e)"
@@ -250,22 +302,30 @@ class _03_함수형_데이터_구조: StringSpec ({
 
     "3.13 append를 접기 연산을 사용해 구현하라." {
         fun <A> reverse(xs: TestList<A>): TestList<A> =
-            TestList.foldLeft(xs, TestList.empty()) { t: TestList<A>, h: A -> Cons(h, t) }
+            foldLeft(xs, TestList.empty()) { t: TestList<A>, h: A -> Cons(h, t) }
 
         fun <A> append(a1: TestList<A>, a2: TestList<A>): TestList<A> =
             foldRight(a1, a2) { x, y -> Cons(x, y) }
 
         fun <A> appendL(a1: TestList<A>, a2: TestList<A>): TestList<A> =
-            TestList.foldLeft(reverse(a1), a2) { y, x -> Cons(x, y) }
+            foldLeft(reverse(a1), a2) { y, x -> Cons(x, y) }
 
-        val list1 = of("a", "b", "c")
-        val list2 = of("A", "B", "C", "D")
+        fun <A> TestList<A>.appendWhen(list: TestList<A>): TestList<A> =
+            when(this) {
+                is Cons -> Cons(head, tail.appendWhen(list))
+                is Nil -> list
+            }
 
-        append(list1, list2) shouldBeEqual of("a", "b", "c", "A", "B", "C", "D")
-        appendL(list1, list2) shouldBeEqual of("a", "b", "c", "A", "B", "C", "D")
+        val list1 = TestList("a", "b", "c")
+        val list2 = TestList("A", "B", "C", "D")
+
+        append(list1, list2) shouldBeEqual TestList("a", "b", "c", "A", "B", "C", "D")
+        appendL(list1, list2) shouldBeEqual TestList("a", "b", "c", "A", "B", "C", "D")
+
+        list1.appendWhen(list2) shouldBeEqual TestList("a", "b", "c", "A", "B", "C", "D")
     }
 
-    "3.14 중첩리스트를 단일 리스트로 연결해주고 시간은 길이 합계에 선형으로 비례하는 함수를 작성하라" {
+    "3.14 중첩리스트를 단일 리스트로 연결해주고 시간은 길이 합계에 선형으로 비례하는 flatten 함수를 작성하라" {
         fun <A> append(a1: TestList<A>, a2: TestList<A>): TestList<A> =
             foldRight(a1, a2) { x, y -> Cons(x, y) }
 
@@ -285,26 +345,53 @@ class _03_함수형_데이터_구조: StringSpec ({
                 append(xs1, xs2)
             }
 
-        val nestedList = of(
-            of("a","b","c"),
-            of("A", "B")
+        val nestedList = TestList(
+            TestList("a","b","c"),
+            TestList("A", "B")
         )
 
-        concat(nestedList) shouldBeEqual of("a","b","c","A","B")
-        appendConcat(nestedList) shouldBeEqual of("a","b","c","A","B")
+        concat(nestedList) shouldBeEqual TestList("a","b","c","A","B")
+        appendConcat(nestedList) shouldBeEqual TestList("a","b","c","A","B")
     }
 
     "3.15 정수로 이뤄진 리스트를 각 원소에 1을 더한 리스트로 변환하는 함수를 작성하라." {
         fun increment(list: TestList<Int>): TestList<Int> =
-            foldRight(
+            foldLeft(
                 list,
                 TestList.empty()
-            ) { e: Int, ls: TestList<Int> ->
+            ) { ls: TestList<Int>, e: Int ->
+                println("cons $e , $ls")
                 Cons(e + 1, ls)
             }
 
-        val list = of(1, 2, 3, 4, 5)
-        increment(list) shouldBeEqual of(2, 3, 4, 5, 6)
+//        tailrec fun <A, B> foldLeft(xs: TestList<A>, z: B, f: (B, A) -> B): B =
+//            when (xs) {
+//                is Nil -> z
+//                is Cons -> {
+//                    println("foldLeft before $xs $z")
+//                    val foldLeft = foldLeft(xs.tail, f(z, xs.head), f)
+//                    println("foldLeft after $foldLeft")
+//                    foldLeft
+//                }
+//            }
+//        foldLeft before xs: Cons(head=1, tail=Cons(head=2, tail=Cons(head=3, tail=Cons(head=4, tail=Cons(head=5, tail=kotlinfp.TestList$Nil@2c72aae9))))) , base: kotlinfp.TestList$Nil@2c72aae9
+    //        cons 1 , kotlinfp.TestList$Nil@2c72aae9
+    //        foldLeft before xs: Cons(head=2, tail=Cons(head=3, tail=Cons(head=4, tail=Cons(head=5, tail=kotlinfp.TestList$Nil@2c72aae9)))) , base: Cons(head=2, tail=kotlinfp.TestList$Nil@2c72aae9)
+        //        cons 2 , Cons(head=2, tail=kotlinfp.TestList$Nil@2c72aae9)
+        //        foldLeft before xs: Cons(head=3, tail=Cons(head=4, tail=Cons(head=5, tail=kotlinfp.TestList$Nil@2c72aae9))) , base: Cons(head=3, tail=Cons(head=2, tail=kotlinfp.TestList$Nil@2c72aae9))
+            //        cons 3 , Cons(head=3, tail=Cons(head=2, tail=kotlinfp.TestList$Nil@2c72aae9))
+            //        foldLeft before xs: Cons(head=4, tail=Cons(head=5, tail=kotlinfp.TestList$Nil@2c72aae9)) , base: Cons(head=4, tail=Cons(head=3, tail=Cons(head=2, tail=kotlinfp.TestList$Nil@2c72aae9)))
+                //        cons 4 , Cons(head=4, tail=Cons(head=3, tail=Cons(head=2, tail=kotlinfp.TestList$Nil@2c72aae9)))
+                //        foldLeft before xs: Cons(head=5, tail=kotlinfp.TestList$Nil@2c72aae9) , base: Cons(head=5, tail=Cons(head=4, tail=Cons(head=3, tail=Cons(head=2, tail=kotlinfp.TestList$Nil@2c72aae9))))
+                    //        cons 5 , Cons(head=5, tail=Cons(head=4, tail=Cons(head=3, tail=Cons(head=2, tail=kotlinfp.TestList$Nil@2c72aae9))))
+                //        foldLeft after Cons(head=6, tail=Cons(head=5, tail=Cons(head=4, tail=Cons(head=3, tail=Cons(head=2, tail=kotlinfp.TestList$Nil@2c72aae9)))))
+            //        foldLeft after Cons(head=6, tail=Cons(head=5, tail=Cons(head=4, tail=Cons(head=3, tail=Cons(head=2, tail=kotlinfp.TestList$Nil@2c72aae9)))))
+        //        foldLeft after Cons(head=6, tail=Cons(head=5, tail=Cons(head=4, tail=Cons(head=3, tail=Cons(head=2, tail=kotlinfp.TestList$Nil@2c72aae9)))))
+//            foldLeft after Cons(head=6, tail=Cons(head=5, tail=Cons(head=4, tail=Cons(head=3, tail=Cons(head=2, tail=kotlinfp.TestList$Nil@2c72aae9)))))
+//        foldLeft after Cons(head=6, tail=Cons(head=5, tail=Cons(head=4, tail=Cons(head=3, tail=Cons(head=2, tail=kotlinfp.TestList$Nil@2c72aae9)))))
+
+        val list = TestList(1, 2, 3, 4, 5)
+        increment(list) shouldBeEqual TestList(2, 3, 4, 5, 6)
     }
 
     "3.16 List<Double> 각 원소를 String으로 변환하는 함수를 작성하라." {
@@ -316,8 +403,8 @@ class _03_함수형_데이터_구조: StringSpec ({
                 Cons(e.toString(), ls)
             }
 
-        val list = of(1.1, 2.0, 3.333)
-        doubleToString(list) shouldBeEqual of("1.1", "2.0", "3.333")
+        val list = TestList(1.1, 2.0, 3.333)
+        doubleToString(list) shouldBeEqual TestList("1.1", "2.0", "3.333")
 
 //        before 1.1 : Cons(head=2.0, tail=Cons(head=3.333, tail=kotlinfp.Nil@54c01b21))
 //        before 2.0 : Cons(head=3.333, tail=kotlinfp.Nil@54c01b21)
@@ -343,8 +430,8 @@ class _03_함수형_데이터_구조: StringSpec ({
                 Cons(f(a), xa)
             }
 
-        val list = of(1, 2, 3, 4, 5)
-        map(list) { i -> i * i } shouldBeEqual of(1, 4, 9, 16, 25)
+        val list = TestList(1, 2, 3, 4, 5)
+        map(list) { i -> i * i } shouldBeEqual TestList(1, 4, 9, 16, 25)
     }
 
     "3.18 리스트에서 주어진 술어를 만족하지 않는 원소를 제거해주는 filter 함수를 작성하라" {
@@ -352,15 +439,15 @@ class _03_함수형_데이터_구조: StringSpec ({
             foldRight(
                 list,
                 TestList.empty()
-            ) { a, ls ->
-                if (f(a)) Cons(a, ls)
-                else ls
+            ) { a, acc ->
+                if (f(a)) Cons(a, acc)
+                else acc
             }
 
         val isEven : (Int) -> Boolean = { i -> i % 2 == 0 }
-        val list = of(1,2,3,4,5,6)
+        val list = TestList(1,2,3,4,5,6)
 
-        filter(list, isEven) shouldBeEqual of(2,4,6)
+        filter(list, isEven) shouldBeEqual TestList(2,4,6)
     }
 
     "3.19 map처럼 작동하지만 인자로 리스트를 반환하는 함수를 받는 flatMap 함수를 작성하라." {
@@ -373,19 +460,19 @@ class _03_함수형_데이터_구조: StringSpec ({
                 append(f(a), lb)
             }
 
-        fun <A, B> flatMap2(xa: TestList<A>, f: (A) -> TestList<B>): TestList<B> =
+        fun <A, B> flatMap2(xa: TestList<A>, block: (A) -> TestList<B>): TestList<B> =
             foldRight(
                 xa,
                 TestList.empty()
-            ) { a, xb ->
-                foldRight(f(a), xb) { b, lb -> Cons(b, lb) }
+            ) { a, acc ->
+                foldRight(block(a), acc) { b, lb -> Cons(b, lb) }
             }
 
-        val list = of(1, 2, 3)
-        val copy : (Int) -> TestList<Int> = { i -> of(i , i) }
+        val list = TestList(1, 2, 3)
+        val copy : (Int) -> TestList<Int> = { i -> TestList(i , i) }
 
-        flatMap(list, copy) shouldBeEqual of(1, 1, 2, 2, 3, 3)
-        flatMap2(list, copy) shouldBeEqual of(1, 1, 2, 2, 3, 3)
+        flatMap(list, copy) shouldBeEqual TestList(1, 1, 2, 2, 3, 3)
+        flatMap2(list, copy) shouldBeEqual TestList(1, 1, 2, 2, 3, 3)
     }
 
     "3.20 flatMap을 사용해 filter를 구현하라" {
@@ -401,14 +488,14 @@ class _03_함수형_데이터_구조: StringSpec ({
             flatMap(
                 list,
             ) { a ->
-                if (f(a)) of(a)
+                if (f(a)) TestList(a)
                 else TestList.empty()
             }
 
         val isEven : (Int) -> Boolean = { i -> i % 2 == 0 }
-        val list = of(1, 2, 3, 4, 5, 6)
+        val list = TestList(1, 2, 3, 4, 5, 6)
 
-        filter(list, isEven) shouldBeEqual of(2, 4, 6)
+        filter(list, isEven) shouldBeEqual TestList(2, 4, 6)
     }
 
     "3.21 두 리스트를 받아서 서로 같은 인덱스에 있는 원소들을 더한 값으로 새 리스트를 돌려주는 함수를 작성하라" {
@@ -422,10 +509,10 @@ class _03_함수형_데이터_구조: StringSpec ({
                 }
             }
 
-        val list1 = of(1, 2, 3, 4, 5)
-        val list2 = of(1, 2, 3, 4)
+        val list1 = TestList(1, 2, 3, 4, 5)
+        val list2 = TestList(1, 2, 3, 4)
 
-        add(list1, list2) shouldBeEqual of(2, 4, 6, 8)
+        add(list1, list2) shouldBeEqual TestList(2, 4, 6, 8)
     }
 
     "3.22 위에서 작성한 함수를 일반화해 다양한 처리가 가능하게 하라" {
@@ -440,10 +527,10 @@ class _03_함수형_데이터_구조: StringSpec ({
             }
 
         val add : (String, String) -> String = { a,b -> a+b }
-        val list1 = of("a", "b", "c", "d", "e")
-        val list2 = of("a", "b", "c")
+        val list1 = TestList("a", "b", "c", "d", "e")
+        val list2 = TestList("a", "b", "c")
 
-        zipWith(list1, list2, add) shouldBeEqual of("aa", "bb", "cc")
+        zipWith(list1, list2, add) shouldBeEqual TestList("aa", "bb", "cc")
     }
 
     "3.23 어떤 List가 다른 List를 부분열로 포함하는지 검사하는 hasSubsequence를 구현하라" {
@@ -468,10 +555,10 @@ class _03_함수형_데이터_구조: StringSpec ({
                     else hasSubsequence(xs.tail, sub)
             }
 
-        val list = of(1, 3, 5, 6)
-        val sub1 = of(3, 5)
-        val sub2 = of(1)
-        val sub3 = of(3, 6)
+        val list = TestList(1, 3, 5, 6)
+        val sub1 = TestList(3, 5)
+        val sub2 = TestList(1)
+        val sub3 = TestList(3, 6)
 
         hasSubsequence(list, sub1) shouldBeEqual true
         hasSubsequence(list, sub2) shouldBeEqual true
