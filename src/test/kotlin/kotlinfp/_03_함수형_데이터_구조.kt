@@ -1,5 +1,6 @@
 package kotlinfp
 
+import io.kotest.assertions.print.print
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import java.util.function.Predicate
@@ -123,14 +124,52 @@ class _03_함수형_데이터_구조: StringSpec ({
     "3.6 foldRight로 구현된 product가 리스트 원소로 0.0을 만나면 재귀를 즉시 중단하고 결과를 돌려줄 수 있는가? 긴 리스트에 대해 쇼트 서킷을 제공할 수 있으면 어떤 장점이 있을까?" {}
 
     "3.8 foldRight를 사용해 리스트 길이를 계산하라" {
-        fun <A> TestList<A>.length(): Int = TODO()
+        fun <A> TestList<A>.length(): Int = TestListUtil.foldRight(this, 0)
+            { _: A, length: Int  -> 1 + length}
+
+        TestListUtil.of(1, 2, 3, 4).length() shouldBeEqual 4
+        TestListUtil.of(Nil).length() shouldBeEqual 1
+        Nil.length() shouldBeEqual 0
     }
 
     "3.9 foldRight는 꼬리재귀가 아니므로 stack-safe 하지 않다. foldLeft를 꼬리 재귀로 작성하라" {
-        tailrec fun <A, B> TestList<A>.foldLeft(z: B, f: (B,A) -> B): B = TODO()
+        fun <A, B> TestList<A>.foldLeft(z: B, f: (B, A) -> B): B {
+            tailrec fun <A, B> loop(list: TestList<A>, default: B, function: (B, A) -> B) : B =
+                when(list) {
+                    is Cons -> loop(list.tail, function(default, list.head), function)
+                    is Nil -> default
+                }
+            return loop(this, z, f)
+        }
+
+        val strings = TestListUtil.of("A","B","C","D","E")
+        val acc : (String, String) -> String = { f, s -> "f($f,$s)" }
+
+        val foldLeft = strings.foldLeft("END",acc)
+        foldLeft shouldBeEqual "f(f(f(f(f(END,A),B),C),D),E)"
+
+        val foldRight = TestListUtil.foldRight(strings, "END", acc)
+        foldRight shouldBeEqual "f(A,f(B,f(C,f(D,f(E,END)))))"
     }
 
     "3.10 foldLeft를 사용해 sum, product, 리스트 길이 계산 함수를 작성하라" {
-        TODO()
+        fun <A, B> TestList<A>.foldLeft(z: B, f: (B, A) -> B): B {
+            tailrec fun <A, B> loop(list: TestList<A>, default: B, function: (B, A) -> B) : B =
+                when(list) {
+                    is Cons -> loop(list.tail, function(default, list.head), function)
+                    is Nil -> default
+                }
+            return loop(this, z, f)
+        }
+
+        val sum : (Int, Int) -> Int = { i1,i2 -> i1 + i2 }
+        val product : (Int, Int) -> Int = { i1, i2 -> i1 * i2 }
+        val length : (Int, Int) -> Int = { length, _ -> length + 1 }
+
+        val list = TestListUtil.of(1,2,3,4,5)
+
+        list.foldLeft(0, sum) shouldBeEqual 15
+        list.foldLeft(1, product) shouldBeEqual 120
+        list.foldLeft(0, length) shouldBeEqual 5
     }
 })
