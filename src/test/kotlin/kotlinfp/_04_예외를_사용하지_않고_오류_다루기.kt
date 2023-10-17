@@ -9,6 +9,7 @@ import kotlinfp.Option.None.flatMap_2
 import kotlinfp.Option.None.getOrElse
 import kotlinfp.Option.None.map
 import kotlinfp.Option.None.orElse
+import kotlin.math.pow
 
 sealed class Option<out ITEM: Any> {
     data class Some<out ITEM: Any>(val item: ITEM) : Option<ITEM>()
@@ -28,19 +29,12 @@ sealed class Option<out ITEM: Any> {
     fun <ITEM: Any, RESULT: Any> Option<ITEM>.flatMap(block: (ITEM) -> Option<RESULT>): Option<RESULT> =
         this.map(block).getOrElse { None }
 
-    /**
-     * Option이 Some인 경우 결과를 반환하지만 Option이 None인 경우 주어진 기본 값을 반환한다.
-     */
     fun <ITEM: Any> Option<ITEM>.getOrElse(default: () -> ITEM): ITEM =
         when(this) {
             is None -> default()
             is Some -> this.item
         }
 
-    /**
-     * 첫 번째 Option의 값이 정의된 경우(즉, Some인 경우) 그 Option을 반환한다.
-     * 그렇지 않은 경우 두 번째 Option을 반환한다.
-     */
     fun <ITEM: Any> Option<ITEM>.orElse(default: () -> Option<ITEM>): Option<ITEM> =
         this.map { Some(it) }.getOrElse { default() }
 
@@ -64,17 +58,12 @@ sealed class Option<out ITEM: Any> {
         }
 }
 
+fun <ITEM: Any, RESULT: Any> lift(block: (ITEM) -> RESULT) : (Option<ITEM>) -> Option<RESULT> =
+    { oa -> oa.map(block) }
+fun <ITEM: Any> catches(block: () -> ITEM) : Option<ITEM> =
+    try { Some(block()) } catch(e: Throwable) { None }
+
 class _04_예외를_사용하지_않고_오류_다루기: StringSpec ({
-
-
-    "mean" {
-        fun mean(list: List<Double>) : Option<Double> =
-            if(list.isEmpty()) None
-            else Some(list.sum() / list.size)
-
-        val option = mean(listOf(1.1, 5.5))
-
-    }
 
     "Option.map" {
         val none = Option.empty<String>()
@@ -125,4 +114,33 @@ class _04_예외를_사용하지_않고_오류_다루기: StringSpec ({
 
         none.filter(isOdd) shouldBeEqual None
     }
+
+    "4.2 flatMap을 사용해 variance 함수를 구현하라" {
+        // 시퀀스의 평균이 m이면, variance는 시퀀스의 원소를 x라 할 때, x - m을 제곱한 값의 평균이다.
+        // (x - m).pow(2)라 할 수 있다.
+        fun mean(list: List<Double>) : Option<Double> =
+            if(list.isEmpty()) None
+            else Some(list.sum() / list.size)
+
+        fun variance(list: List<Double>) : Option<Double> =
+            mean(list).flatMap { m ->
+                mean(list.map { x -> (x - m).pow(2) })
+            }
+
+        val list = listOf(1.1, 2.2, 3.3)
+        variance(list) shouldBeEqual Option.of(0.8066666666666665)
+        variance(emptyList()) shouldBeEqual Option.empty()
+
+    }
+
+    "4.3 두 Option 값을 이항 함수를 통해 조합하는 제네릭 함수 map2 를 작성하라." {
+        // 두 Option 중에 하나라도 None이 존재하면 반환값도 None이다.
+        fun <ITEM1: Any, ITEM2: Any, RESULT: Any> map2(
+            item1: Option<ITEM1>,
+            item2: Option<ITEM2>,
+            block: (ITEM1, ITEM2) -> RESULT
+        ): Option<RESULT> = TODO()
+
+    }
+
 })
