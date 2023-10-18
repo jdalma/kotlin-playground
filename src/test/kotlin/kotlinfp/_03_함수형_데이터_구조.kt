@@ -30,12 +30,7 @@ sealed class TestList<out A> {
         tailrec fun <A, B> foldLeft(xs: TestList<A>, z: B, f: (B, A) -> B): B =
             when (xs) {
                 is Nil -> z
-                is Cons -> {
-                    println("foldLeft before xs: $xs , base: $z")
-                    val foldLeft = foldLeft(xs.tail, f(z, xs.head), f)
-                    println("foldLeft after $foldLeft")
-                    foldLeft
-                }
+                is Cons -> { foldLeft(xs.tail, f(z, xs.head), f) }
             }
 
         fun <A, B> foldRight(xs: TestList<A>, z: B, f: (A,B) -> B): B =
