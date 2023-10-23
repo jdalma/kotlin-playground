@@ -9,9 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.function.ToDoubleBiFunction;
 import java.util.stream.Collectors;
 
@@ -36,6 +34,12 @@ public class AsyncShop {
 
         public double getPrice(String product) {
             return calculatePrice(product);
+        }
+
+        public String getPriceOfCode(String product) {
+            double price = calculatePrice(product);
+            Discount.Code code = Discount.Code.values()[new Random().nextInt(5)];
+            return String.format("%s:%.2f:%s", name, price, code);
         }
 
         public Future<Double> getPriceAsync(String product) {
@@ -166,6 +170,37 @@ public class AsyncShop {
         long duration2 = ((System.nanoTime() - start2) / 1_000_000);
         System.out.println("futures process duration2 " + duration2 + " msecs");
         // futures process duration2 1010 msecs
+    }
+
+    @Test
+    void discount() {
+        List<Shop> shops = List.of(
+                new Shop("a"),
+                new Shop("b"),
+                new Shop("c"),
+                new Shop("d"),
+                new Shop("e"),
+                new Shop("f"),
+                new Shop("g"),
+                new Shop("h")
+        );
+        final Executor executor = Executors.newFixedThreadPool(shops.size());
+        final String product = "iPhone";
+
+        List<String> collect = shops.stream()
+                .map(shop -> shop.getPriceOfCode(product))
+                .map(Quote::parse)
+                .map(Discount::applyDiscount)
+                .toList();
+
+        List<CompletableFuture<String>> collect1 = shops.stream()
+                .map(shop -> CompletableFuture.supplyAsync(
+                        () -> shop.getPriceOfCode(product), executor))
+                .map(future -> future.thenApply(Quote::parse))
+                .map(future -> future.thenCompose(quote ->
+                        CompletableFuture.supplyAsync(() -> Discount.applyDiscount(quote), executor)))
+                .toList();
+
     }
 
 }
