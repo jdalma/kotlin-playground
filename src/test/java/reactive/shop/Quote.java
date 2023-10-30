@@ -1,4 +1,4 @@
-package reactive;
+package reactive.shop;
 
 public class Quote {
     private final String shopName;

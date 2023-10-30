@@ -1,6 +1,6 @@
-package reactive;
+package reactive.shop;
 
-import static reactive.AsyncShop.delay;
+import static reactive.shop.AsyncShop.delay;
 
 public class ExchangeService {
 

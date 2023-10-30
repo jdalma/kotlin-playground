@@ -1,6 +1,5 @@
-package reactive;
+package reactive.shop;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -8,10 +7,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.*;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.*;
-import static reactive.ExchangeService.*;
+import static reactive.shop.ExchangeService.*;
 
 public class AsyncShop {
 

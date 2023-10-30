@@ -1,7 +1,7 @@
-package reactive;
+package reactive.shop;
 
 import static java.lang.String.format;
-import static reactive.AsyncShop.delay;
+import static reactive.shop.AsyncShop.delay;
 
 public class Discount {
     public enum Code {
