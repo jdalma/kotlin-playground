@@ -1,6 +1,15 @@
 package modernJava;
 
 public record Dish(String name, boolean vegetarian, int calories, Type type) {
+    public String getName() {
+        return name;
+    }
+    public int getCalories() {
+        return calories;
+    }
+    public Type getType() {
+        return type;
+    }
     public enum Type {MEAT, FISH, OTHER}
 
     @Override
