@@ -15,4 +15,10 @@ suspend fun main(): Unit = coroutineScope {
     }
     job.children.forEach { it.join() }
     job.complete()
+
+    launch {
+        while(coroutineContext[Job]?.isCompleted == false) {
+            delay(1000, 0)
+        }
+    }
 }
