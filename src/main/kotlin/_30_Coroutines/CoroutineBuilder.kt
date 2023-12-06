@@ -4,8 +4,8 @@ import kotlinx.coroutines.*
 
 fun CoroutineScope.log(msg: String) {
     val name = this.coroutineContext[CoroutineName]
-    println(coroutineContext[CoroutineName]?.name)
-    println(coroutineContext[Job]?.isActive)
+    println("$msg : ${coroutineContext[CoroutineName]?.name} : ${this}")
+//    println(coroutineContext[Job]?.isActive)
 }
 
 fun main() {
