@@ -15,5 +15,11 @@ class Invoke: StringSpec ({
         adder(1) shouldBeEqual 1
         adder(1,2,3,4,5) shouldBeEqual 15
         adder(1,2,3,4,5,6,7,8,9,10) shouldBeEqual 55
+
+        val array = intArrayOf(1,2,3,4,5)
+        adder(*array) shouldBeEqual 15
+
+        val array2 = intArrayOf(1,2,*array,3,4,5)
+        adder(*array2) shouldBeEqual 30
     }
 })

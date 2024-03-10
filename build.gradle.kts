@@ -12,6 +12,8 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    // https://mvnrepository.com/artifact/cglib/cglib
+    implementation("cglib:cglib:2.2.2")
     testImplementation(kotlin("test"))
     testImplementation("io.kotest:kotest-runner-junit5:5.6.1")
     testImplementation("io.kotest:kotest-assertions-core:5.6.1")
