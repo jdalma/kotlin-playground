@@ -103,4 +103,19 @@ class BasicTest : FunSpec({
         (1 in arrayOf1To10) shouldBeEqual true
         (11 in arrayOf1To10) shouldBeEqual false
     }
+
+    test("참조 동등성 테스트") {
+        val a = 1000
+        val b = 1000
+
+        (a == b) shouldBe true
+        (a.equals(b)) shouldBe true
+        (a === b) shouldBe true
+
+        val c = 1
+        val d = 1
+        (c == d) shouldBe true
+        (c.equals(d)) shouldBe true
+        (c === d) shouldBe true
+    }
 })

@@ -6,9 +6,14 @@ import org.junit.jupiter.api.Test
 
 class LottoNumbers1(val numbers: List<Int>)
 
-class LottoNumbers2(numbers: List<Int>) {
+open class LottoNumbers2(numbers: List<Int>) {
     private val _numbers: List<Int> = numbers.toList()
     val numbers: List<Int> get() = _numbers
+    var score: Int = 0
+        set(value) {
+            field = if(value >= 0) value else 0
+        }
+
 }
 
 class BackingPropertyTest {
