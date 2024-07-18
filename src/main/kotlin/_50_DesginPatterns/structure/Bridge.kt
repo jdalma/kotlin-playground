@@ -1,4 +1,4 @@
-package _50_DesginPatterns
+package _50_DesginPatterns.structure
 
 fun main() {
     val stormTrooper = StormTrooper(Rifle(), RegularLegs())
