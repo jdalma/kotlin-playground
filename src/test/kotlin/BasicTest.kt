@@ -9,6 +9,7 @@ import io.kotest.matchers.ints.shouldBeLessThanOrEqual
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldStartWith
+import kotlin.concurrent.thread
 import kotlin.random.Random
 
 @DisplayName("기본 테스트")
@@ -118,4 +119,46 @@ class BasicTest : FunSpec({
         (c.equals(d)) shouldBe true
         (c === d) shouldBe true
     }
+
+    test("동시성 문제가 발생하는 예제") {
+        val scores = arrayOf(0)
+        val threads = List(2) {
+            thread {
+                for (i in 1..1000) {
+                    scores[0]++
+                }
+            }
+        }
+
+        for (thread in threads) {
+            thread.join()
+        }
+
+        scores[0] shouldBeLessThan 2000
+    }
+
+    test("커리") {
+        fun subtract(x: Int): (Int) -> Int = { y: Int -> x - y }
+
+        subtract(50)(8) shouldBeEqual 42
+
+        fun createLogger(level: LogLevel): (String) -> Unit {
+            return { message: String -> log(level, message) }
+        }
+
+        createLogger(LogLevel.ERROR)("에러 전용 입니다.")
+        val warningLog = createLogger(LogLevel.ERROR)
+        warningLog("경고 전용 입니다.")
+    }
 })
+
+enum class LogLevel {
+    ERROR, WARNING, INFO
+}
+
+fun log(level: LogLevel, message: String) {
+    println("$level : $message")
+}
+fun errorLog(message: String) {
+    log(LogLevel.ERROR, message)
+}
