@@ -31,6 +31,6 @@ private fun CoroutineScope.doWork(
     channel: ReceiveChannel<String>
 ) = launch(Dispatchers.Default) {
     for (p in channel) {
-        println("Worker $id processed $p")
+        println("Index : $id , Worker : ${Thread.currentThread().name} , Processed : $p")
     }
 }

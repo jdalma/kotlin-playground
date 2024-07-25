@@ -6,24 +6,40 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flattenMerge
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlin.random.Random
 
 fun main() {
     runBlocking {
+        // 1. 데이터 클래스로 장벽 세우기
         val favoriteCharacter = fetchFavoriteCharacterCorrect("데이터 클래스로 장벽 세우기")
         println(favoriteCharacter)
 
-        // 동일한 타입을 반환하는 일시 중단 함수를 동시에 실행하기
+        // 2. 동일한 타입을 반환하는 일시 중단 함수를 동시에 실행하기
         val characters: List<Deferred<FavoriteCharacter>> = listOf(
             Me.getFavoriteCharacter(),
             Taylor.getFavoriteCharacter(),
             Michael.getFavoriteCharacter()
         )
         println(characters.awaitAll())
-    }
 
+        // 3. 일시 중단 함수를 동시에 실행할 때 flatMapMerge, flattenMerge 활용
+        val defer1 = defer { fetchUser("member1") }
+        val defer2 = defer { fetchUser("member2") }
+        // toList를 호출해야 실제로 emit된다.
+        val members = flowOf(defer1, defer2).flattenMerge().toList()
+        println(members)
+    }
 }
+
+private suspend fun fetchUser(member: String) = member
+
+private fun defer(block: suspend () -> String): Flow<String> = flow { emit(block()) }
 
 data class FavoriteCharacter(
     val name: String,

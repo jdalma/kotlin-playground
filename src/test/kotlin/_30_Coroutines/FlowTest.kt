@@ -7,12 +7,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.lang.RuntimeException
 
 class FlowTest: StringSpec ({
@@ -106,5 +104,25 @@ class FlowTest: StringSpec ({
             seconds++
             println("${seconds}초 -> $number 소모")
         }
+    }
+
+    "쌍방 중단" {
+        fun dispatcherSeparateFlow() = flow {
+            for (i in 1..5) {
+                delay(100)
+                println("emit : [$i] - ${Thread.currentThread().name}")
+                emit(i)
+            }
+        }
+
+        dispatcherSeparateFlow().flowOn(Dispatchers.IO).collect {
+            println("collect : [$it] - ${Thread.currentThread().name}")
+        }
+
+        // emit : [1] - DefaultDispatcher-worker-1
+        // collect : [1] - pool-1-thread-1
+        // emit : [2] - DefaultDispatcher-worker-1
+        // collect : [2] - pool-1-thread-1
+        // ...
     }
 })
