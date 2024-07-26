@@ -1,10 +1,19 @@
 package _50_DesginPatterns.behavioral
 
+import kotlin.random.Random
+
 fun main() {
+    // 달팽이 예제
     val snail = Snail()
     snail.seeHero()
     snail.getHit(1)
     snail.getHit(10)
+
+    // 피자 배달 상태 예제
+    var order: PizzaOrderStatus = OrderReceived(Random.nextInt())
+    order = order.nextStatus()
+    order = order.nextStatus()
+    order = order.nextStatus()
 }
 
 interface WhatCanHappen {
@@ -61,4 +70,24 @@ sealed class Mood {
     object Aggressive : Mood()
     object Retreating : Mood()
     object Dead : Mood()
+}
+
+sealed class PizzaOrderStatus(protected val orderId: Int) {
+    abstract fun nextStatus(): PizzaOrderStatus
+}
+
+class OrderReceived(orderId: Int) : PizzaOrderStatus(orderId) {
+    override fun nextStatus() = PizzaBeingMade(orderId)
+}
+
+class PizzaBeingMade(orderId: Int) : PizzaOrderStatus(orderId) {
+    override fun nextStatus() = OutForDelivery(orderId)
+}
+
+class OutForDelivery(orderId: Int) : PizzaOrderStatus(orderId) {
+    override fun nextStatus() = Completed(orderId)
+}
+
+class Completed(orderId: Int) : PizzaOrderStatus(orderId) {
+    override fun nextStatus() = this
 }

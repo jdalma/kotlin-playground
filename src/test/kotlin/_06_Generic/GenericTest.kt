@@ -7,6 +7,7 @@ import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.ints.shouldBeLessThanOrEqual
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import kotlin.reflect.KClass
 
 class GenericTest : DescribeSpec({
 
@@ -206,4 +207,12 @@ class GenericTest : DescribeSpec({
             intBox.v shouldBeEqual 11
         }
     }
+
+    describe("reified 제네릭") {
+        isSameType<Int>(1) shouldBe true
+        isSameType<Int>(1L) shouldBe false
+        isSameType<Long>(1L) shouldBe true
+    }
 })
+
+inline fun <reified T: Number> isSameType(a: Number) = a is T
