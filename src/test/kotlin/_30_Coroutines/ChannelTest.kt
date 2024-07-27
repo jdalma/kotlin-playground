@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
@@ -28,29 +29,38 @@ class ChannelTest: StringSpec ({
         onlyIntChannel.close()
     }
 
-    "채널은 공급된 데이터는 동시성에 노출된다," {
+    "채널에 공급된 데이터는 동시성에 노출된다," {
         val channel = produce {
-            (1 .. 10).forEach {
+            (1 .. 30).forEach {
                 println("$it 생산")
+                delay(500)
                 send(it)
             }
         }
 
+        // 이터레이터를 통한 컨슘은 데이터가 공급되면 계속 소비한다.
+        // 공급이 끊기면 이터레이터도 끝난다.
         launch {
             launch {
                 for (c in channel) {
                     println("iterator1 : ${Thread.currentThread().name} $c")
                 }
+                println("1번 컨슈머 종료")
             }
             for (c in channel) {
                 println("iterator2 : ${Thread.currentThread().name} $c")
             }
+            println("2번 컨슈머 종료")
         }
 
+        delay(5000)
+
+        // 5초 후에 새로 합류하는 소비자는 Flow와 다르게 공급되는 데이터부터 소비를 시작한다.
         GlobalScope.launch {
             channel.consumeEach {
                 println("consumeEach : ${Thread.currentThread().name} $it")
             }
+            println("3번 컨슈머 종료")
         }
         // iterator2 : pool-1-thread-1 2
         // consumeEach : DefaultDispatcher-worker-1 1
@@ -84,16 +94,26 @@ class ChannelTest: StringSpec ({
     "행위자 코루틴" {
         // actor 함수도 produce와 마찬가지로 내부에 채널을 갖고 있는 코루틴을 생성한다.
         // 행위자는 채널에서 값을 가져오는 역할을 한다.
+        var executeCount = 0
         val actor = actor {
             var number = 1
             channel.consumeEach {
+                executeCount++
                 number++ shouldBeEqual it
             }
         }
 
         (1 .. 10).forEach {
+            println(it)
             actor.send(it)
         }
+
+        (11..20).forEach {
+            println(it)
+            actor.send(it)
+        }
+
+        actor.close()
     }
 
     "버퍼가 있는 채널" {

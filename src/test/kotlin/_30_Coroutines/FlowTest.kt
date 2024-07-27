@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import java.lang.RuntimeException
 
@@ -39,7 +40,7 @@ class FlowTest: StringSpec ({
     "여러 소비자가가 하나의 생산자에게서 값을 읽기" {
         var publishCount = 0
         val numbersFlow: Flow<Int> = flow {
-            (0 .. 10).forEach {
+            (1 .. 30).forEach {
                 println("$it 전송 중")
                 publishCount++
                 emit(it)
@@ -47,20 +48,37 @@ class FlowTest: StringSpec ({
         }
 
         var consumerCount = 0
-        (1..4).forEach { coroutineId ->
-            launch(Dispatchers.Default) {
-                numbersFlow.collect { number ->
-                    consumerCount++
-                    delay(100)
-                    println("$coroutineId 번 코루틴에서 $number 수신")
-                }
+        launch(Dispatchers.Default) {
+            numbersFlow.collect { number ->
+                consumerCount++
+                println("1번 코루틴에서 $number 수신")
             }
         }
 
-        delay(3000)
+        launch(Dispatchers.Default) {
+            numbersFlow.collect { number ->
+                consumerCount++
+                println("2번 코루틴에서 $number 수신")
+            }
+        }
 
-        publishCount shouldBeEqual 44
-        consumerCount shouldBeEqual 44
+        launch(Dispatchers.Default) {
+            numbersFlow.collect { number ->
+                consumerCount++
+                println("3번 코루틴에서 $number 수신")
+            }
+        }
+
+        // last()를 호출하면 새로운 컨슈머를 사용하는 것과 동일하게 데이터를 처음부터 끝까지 받게 되며 데이터의 공급이 끝날 때 까지 기다린다.
+        val last = numbersFlow.last().also {
+            println("last 소비자에서 $it 수신")
+        }
+        last shouldBeEqual 30
+
+        delay(10000)
+
+        publishCount shouldBeEqual 120
+        consumerCount shouldBeEqual 90
     }
 
     "버퍼 있는 흐름" {
