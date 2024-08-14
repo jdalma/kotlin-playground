@@ -12,16 +12,18 @@ class `kth-smallest-element-in-a-bst` {
 
     // 1. 재귀 호출로 모든 트리를 조회 후 정렬
     // 시간복잡도: O(n * log(n)), 공간복잡도: O(n)
-    private fun recursionAndSort(root: TreeNode?, k: Int) = mutableSetOf<Int>().apply {
-        dfs(root, this)
-    }.sorted()[k - 1]
+    private fun recursionAndSort(root: TreeNode?, k: Int): Int {
+        fun dfs(node: TreeNode?, set: MutableSet<Int>) {
+            if (node == null) return
 
-    private fun dfs(node: TreeNode?, set: MutableSet<Int>) {
-        if (node == null) return
+            set.add(node.`val`)
+            dfs(node.left, set)
+            dfs(node.right, set)
+        }
 
-        set.add(node.`val`)
-        dfs(node.left, set)
-        dfs(node.right, set)
+        return mutableSetOf<Int>().apply {
+            dfs(root, this)
+        }.sorted()[k - 1]
     }
 
     // 2. 재귀 호출로 모든 트리의 값을 우선순위 큐에 삽입하고 작은 값으로 계속 큐를 갱신
