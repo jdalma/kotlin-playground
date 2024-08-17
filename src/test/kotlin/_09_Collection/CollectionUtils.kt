@@ -368,4 +368,12 @@ class CollectionUtils :StringSpec ({
         listOf(Int.MAX_VALUE, Int.MAX_VALUE).sum() shouldBeEqual -2
         listOf(Int.MAX_VALUE, Int.MAX_VALUE).sumOf { it.toLong() } shouldBeEqual 4294967294L
     }
+
+    "associate" {
+        val array = intArrayOf(1,2,3,4,5,6,7,8,9,10)
+
+        array.associateBy { "A" } shouldBe mapOf("A" to 10)
+        array.withIndex().associate { it.value to it.index } shouldBe
+            mapOf(1 to 0, 2 to 1, 3 to 2, 4 to 3, 5 to 4, 6 to 5, 7 to 6, 8 to 7, 9 to 8, 10 to 9)
+    }
 })

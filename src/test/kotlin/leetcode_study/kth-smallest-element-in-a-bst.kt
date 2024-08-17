@@ -69,32 +69,7 @@ class `kth-smallest-element-in-a-bst` {
 
     @Test
     fun `루트와 정수 k가 주어지면 트리에 있는 모든 노드의 값 중 가장 작은 값을 반환한다`() {
-        kthSmallest(TreeNode.of(listOf(0, 3,1,4,null,2)), 1) shouldBeEqual 1
-        kthSmallest(TreeNode.of(listOf(0, 5,3,6,2,4,null,null,1)), 3) shouldBeEqual 3
-    }
-}
-
-class TreeNode(var `val`: Int) {
-    var left: TreeNode? = null
-    var right: TreeNode? = null
-
-    companion object {
-        fun of(numbers: List<Int?>): TreeNode? {
-            fun setChild(node: TreeNode?, nums: List<Int?>, index: Int): TreeNode? {
-                if (node == null) return null
-                val (leftIndex, rightIndex) = index * 2 to index * 2 + 1
-
-                if (leftIndex < nums.size && nums[leftIndex] != null) {
-                    node.left = TreeNode(nums[leftIndex]!!)
-                    setChild(node.left, nums, leftIndex)
-                }
-                if (rightIndex < nums.size && nums[rightIndex] != null) {
-                    node.right = TreeNode(nums[rightIndex]!!)
-                    setChild(node.right, nums, rightIndex)
-                }
-                return node
-            }
-            return setChild(TreeNode(numbers[1]!!), numbers, 1)
-        }
+        kthSmallest(TreeNode.of(3,1,4,null,2), 1) shouldBeEqual 1
+        kthSmallest(TreeNode.of(5,3,6,2,4,null,null,1), 3) shouldBeEqual 3
     }
 }
