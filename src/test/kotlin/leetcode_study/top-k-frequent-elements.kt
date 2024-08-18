@@ -33,7 +33,7 @@ class `top-k-frequent-elements` {
     private fun second(nums: IntArray, k: Int): IntArray {
         val map = mutableMapOf<Int, Int>()
 
-        nums.forEach { map.put(it, map.getOrDefault(it, 0) + 1) }
+        nums.forEach { map[it] = map.getOrDefault(it, 0) + 1 }
 
         val heap: PriorityQueue<Map.Entry<Int, Int>> = PriorityQueue<Map.Entry<Int, Int>> {
             v1, v2 -> v2.value.compareTo(v1.value)

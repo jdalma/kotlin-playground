@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
+import java.util.PriorityQueue
 
 class Collection : StringSpec ({
 
@@ -99,4 +100,17 @@ class Collection : StringSpec ({
         shouldThrow<NoSuchElementException> { list.last() }
     }
 
+    "우선순위 큐" {
+        val maxHeap: PriorityQueue<String> = PriorityQueue<String> {
+                v1, v2 -> v2.compareTo(v1)
+        }
+
+        maxHeap.offer("A")
+        maxHeap.offer("A")
+        maxHeap.offer("Z")
+        maxHeap.offer("D")
+
+        maxHeap.poll() shouldBeEqual "Z"
+        maxHeap.size shouldBeEqual 3
+    }
 })
