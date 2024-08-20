@@ -31,10 +31,18 @@ class `construct-binary-tree-from-preorder-and-inorder-traversal` {
 
         println("value: $value, preStart: $preStart, rootIndexInInorder: $rootIndexInInorder, inStart: $inStart, inEnd: $inEnd")
         return TreeNode(value).apply {
+            // 좌측 자식 노드 탐색
+            // preStart : 전위 순회 기준이기 때문에 인덱스를 1씩 증가시켜서 좌측 자식 노드로 계속 탐색할 수 있다.
+            // inStart : 중위 순회 기준 시작 인덱스는 0에서 움직일 필요가 없다.
+            // inEnd : 중위 순회 기준 좌측 자식 노드는 항상 rootIndexInInorder 인덱스의 좌측에 존재하기 때문에 중위 순회의 탐색 끝을 1 감소시킨다.
             this.left = traversal(
                 preorder, inorder, inorderIndices,
                 preStart + 1, inStart, rootIndexInInorder - 1
             )
+            // 우측 자식 노드 탐색
+            // preStart : 전위 순회 기준 현재 노드의 인덱스 값 + 중위 순회 기준 현재 노드의 인덱스 값 - 중위 순회 시작 인덱스 + 1
+            // inStart : 중위 순회 기준 우측 자식 노드는 항상 rootIndexInInorder 인덱스의 우측에 존재하기 때문에 중위 순회의 탐색 시작을 1 증가시킨다.
+            // inEnd : 중위 순회 기준 끝 인덱스는 움직일 필요가 없다.
             this.right = traversal(
                 preorder, inorder, inorderIndices,
                 preStart + rootIndexInInorder - inStart + 1, rootIndexInInorder + 1,  inEnd
