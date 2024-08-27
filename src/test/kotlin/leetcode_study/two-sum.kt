@@ -9,6 +9,10 @@ class `two-sum` {
         return usingMapOptimized(nums, target)
     }
 
+    /**
+     * 1. map을 활용
+     * TC: O(n), SC: O(n)
+     */
     private fun usingMap(nums: IntArray, target: Int): IntArray {
         val map = nums.withIndex().associate { it.value to it.index }
 
@@ -21,6 +25,10 @@ class `two-sum` {
         return intArrayOf()
     }
 
+    /**
+     * 2. map에 모든 값을 초기화할 필요가 없기에, nums를 순회하며 확인한다.
+     * TC: O(n), SC: O(n)
+     */
     private fun usingMapOptimized(nums: IntArray, target: Int): IntArray {
         val map = mutableMapOf<Int, Int>()
 
