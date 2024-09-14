@@ -1,13 +1,6 @@
 package leetcode_study
 
-import io.kotest.matchers.collections.shouldBeIn
-import io.kotest.matchers.collections.shouldBeSortedWith
-import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldContainInOrder
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeSameInstanceAs
 import org.junit.jupiter.api.Test
 
 class `group-anagrams` {
@@ -27,7 +20,7 @@ class `group-anagrams` {
 
     /**
      * 2. 입력받은 문자열들을 순회하며 문자열의 문자 갯수를 카운트하여 애너그램인지 구별한다.
-     * TC: O(n), SC: O(n)
+     * TC: O(n * k), SC: O(n)
      */
     private fun usingArray(strs: Array<String>): List<List<String>> {
         val map = strs.groupBy { it ->

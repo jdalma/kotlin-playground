@@ -12,6 +12,9 @@ class `implement-trie-prefix-tree` {
 
         private val node = Node()
 
+        /**
+         * TC: O(n), SC: O(n)
+         */
         fun insert(word: String) {
             var now = node
 
@@ -25,6 +28,9 @@ class `implement-trie-prefix-tree` {
             now.isEnd = true
         }
 
+        /**
+         * TC: O(n), SC: O(1)
+         */
         fun search(word: String): Boolean {
             var now = node
 
@@ -39,6 +45,9 @@ class `implement-trie-prefix-tree` {
             return now.isEnd
         }
 
+        /**
+         * TC: O(n), SC: O(1)
+         */
         fun startsWith(prefix: String): Boolean {
             var now = node
 
