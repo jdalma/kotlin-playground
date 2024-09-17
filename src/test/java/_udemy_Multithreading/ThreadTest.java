@@ -150,6 +150,63 @@ public class ThreadTest {
         Thread thread = new Thread(longComputationTask);
         thread.setDaemon(true);
         thread.start();
+    }
 
+    @Test
+    void sharedMonitor() {
+        final Object monitor = new Object();
+        final StateThread stateThread = new StateThread(monitor);
+        final StateThread stateThread2 = new StateThread(monitor);
+
+        try {
+            System.out.println("Thread state = " + stateThread.getState());
+            stateThread.start();
+            stateThread2.start();
+            System.out.println("Thread state (after start) = " + stateThread.getState());
+            System.out.println("Thread2 state (after start) = " + stateThread2.getState());
+
+
+            Thread.sleep(1000);
+            System.out.println("Thread state (after 0.1 sec) = " + stateThread.getState());
+            System.out.println("Thread2 state (after 0.1 sec) = " + stateThread2.getState());
+
+            synchronized (monitor) {
+                monitor.notifyAll();
+            }
+            System.out.println("Thread state (after notify) = " + stateThread.getState());
+            System.out.println("Thread2 state (after notify) = " + stateThread2.getState());
+
+            stateThread.join();
+            System.out.println("Thread state (after join) = " + stateThread.getState());
+            stateThread2.join();
+            System.out.println("Thread2 state (after join) = " + stateThread2.getState());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+class StateThread extends Thread {
+    private final Object monitor;
+    StateThread(Object monitor) {
+        this.monitor = monitor;
+    }
+
+    @Override
+    public void run() {
+        try {
+            for (int i = 0; i < 10000; i++) {
+                String a = "a";
+            }
+            synchronized (monitor) {
+                // 이 monitor에 대한 주인이 된 후에 wait을 호출하면, 이 객체에 대한 잠금을 포기한다.
+                // 그렇기에 다른 곳에서 이 monitor의 주인이 될 수 있다.
+                monitor.wait();
+            }
+            System.out.println(super.getName() + " is notified " + System.currentTimeMillis());
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

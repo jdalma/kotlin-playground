@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class Collection {
+class Collection {
 
     private List<Dish> menu;
 
