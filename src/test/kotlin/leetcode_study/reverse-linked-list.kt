@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test
 
 class `reverse-linked-list` {
 
+    /**
+     * TC : O(n), SC: O(1)
+     */
     fun reverseList(head: ListNode?): ListNode? {
         var prev: ListNode? = null
         var next: ListNode? = null
