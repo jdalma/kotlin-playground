@@ -9,6 +9,9 @@ class `linked-list-cycle` {
         var next: ListNode? = null
     }
 
+    /**
+     * TC: O(n), SC: O(1)
+     */
     fun hasCycle(head: ListNode?): Boolean {
         if (head == null) return false
 
