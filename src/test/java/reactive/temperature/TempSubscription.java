@@ -4,6 +4,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 
+/**
+ * Subscription은 Subscriber가 구독한 데이터의 개수를 요청하거나 구독을 해지하는 역할을 한다.
+ */
 public class TempSubscription implements Flow.Subscription {
 
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();

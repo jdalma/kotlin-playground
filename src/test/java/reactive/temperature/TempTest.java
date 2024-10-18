@@ -16,6 +16,7 @@ public class TempTest {
             TempProcessor processor = new TempProcessor();
             processor.subscribe(subscriber);
             // Processor를 Publisher와 Subscriber 사이로 연결한다.
+            // 데이터를 통지할 준비가 되었음을 알린다.
             processor.onSubscribe(new TempSubscription(processor, town));
         };
     }
