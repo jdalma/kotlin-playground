@@ -29,8 +29,3 @@ class `reverse-linked-list` {
             shouldBe(ListNode(5, ListNode(4, ListNode(3, ListNode(2, ListNode(1))))))
     }
 }
-
-class ListNode(
-    var `val`: Int,
-    var next: ListNode? = null
-)

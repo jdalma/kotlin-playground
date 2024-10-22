@@ -4,24 +4,29 @@ import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import java.lang.RuntimeException
 
-class `merge-k-sorted-lists` {
+data class ListNode(
+    var `val`: Int
+) {
+    var next: ListNode? = null
 
-    data class ListNode(var `val`: Int) {
-        var next: ListNode? = null
-
-        companion object {
-            fun of(vararg `val`: Int): ListNode {
-                val dummy = ListNode(-1)
-                var prev = dummy
-                for (v in `val`) {
-                    prev.next = ListNode(v)
-                    prev = prev.next ?: throw RuntimeException()
-                }
-                return dummy.next ?: throw RuntimeException()
-            }
-        }
+    constructor(`val`: Int, node: ListNode): this(`val`) {
+        this.next = node
     }
 
+    companion object {
+        fun of(vararg `val`: Int): ListNode {
+            val dummy = ListNode(-1)
+            var prev = dummy
+            for (v in `val`) {
+                prev.next = ListNode(v)
+                prev = prev.next ?: throw RuntimeException()
+            }
+            return dummy.next ?: throw RuntimeException()
+        }
+    }
+}
+
+class `merge-k-sorted-lists` {
     fun mergeKLists(lists: Array<ListNode?>): ListNode? {
         return if (lists.isEmpty()) null
         else if (lists.size == 1) lists.first()

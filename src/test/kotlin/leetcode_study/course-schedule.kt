@@ -44,13 +44,15 @@ class `course-schedule` {
 
     @Test
     fun `코스의 개수와 코스 간 의존성을 전달하면 코스를 완료할 수 있는지 여부를 반환한다`() {
-        canFinish(5,
+        canFinish(7,
             arrayOf(
                 intArrayOf(0,1),
                 intArrayOf(0,2),
                 intArrayOf(1,3),
                 intArrayOf(1,4),
-                intArrayOf(3,4)
+                intArrayOf(3,4),
+                intArrayOf(5,1),
+                intArrayOf(6,1),
             )
         ) shouldBe true
         canFinish(5,
