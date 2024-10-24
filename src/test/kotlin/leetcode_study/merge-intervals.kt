@@ -10,7 +10,7 @@ class `merge-intervals` {
         var start: Int,
         var end: Int
     ) {
-        fun isMergePossible(s: Int) = s <= this.end
+        fun isMergePossible(array: IntArray) = array[0] <= this.end && this.start <= array[1]
     }
 
     /**
@@ -25,7 +25,7 @@ class `merge-intervals` {
         }
         result.add(tmp)
         for (interval in sorted) {
-            if (tmp.isMergePossible(interval[0])) {
+            if (tmp.isMergePossible(interval)) {
                 tmp.end = max(interval[1], tmp.end)
             } else {
                 tmp = CustomRange(interval[0], interval[1])
