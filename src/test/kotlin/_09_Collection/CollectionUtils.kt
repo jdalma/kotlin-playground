@@ -270,6 +270,20 @@ class CollectionUtils :StringSpec ({
         )
     }
 
+    "map과 flatMap 차이" {
+        val list = listOf("1", "2", "A", "3", "4")
+
+        shouldThrow<NumberFormatException> { list.map(String::toInt) }
+
+        list.map {
+            try { it.toInt() } catch(e: NumberFormatException) {  }
+        } shouldBe listOf(1, 2, Unit, 3, 4)
+
+        list.flatMap {
+            try { listOf(it.toInt()) } catch(e: NumberFormatException) { emptyList() }
+        } shouldBe listOf(1, 2, 3, 4)
+    }
+
     /**
      * map()에 대해서도 원소 인덱스와 원소를 함께 람다에 전달해주는 mapIndexed()가 있다.
      */
