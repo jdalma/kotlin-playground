@@ -11,7 +11,7 @@ class `binary-tree-maximum-path-sum` {
      */
     fun maxPathSum(root: TreeNode?): Int {
         if (root == null) return 0
-        var max = root.`val`    // 부모 노드와 2개의 자식 노드의 합을 전역 변수로 갱신한다.
+        var max = root.`val`    // DFS가 진행되면서 노드 값의 합을 갱신한다.
 
         fun dfs(node: TreeNode?): Int {
             if (node == null) return 0
