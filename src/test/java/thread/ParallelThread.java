@@ -1,9 +1,8 @@
-package parallelTest;
+package thread;
 
 import modernJava.ForkJoinSumCalculator;
 import modernJava.WordCounter;
 import modernJava.WordCounterSpliterator;
-import org.assertj.core.api.Assert;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +12,7 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class Parallel {
+public class ParallelThread {
 
     private long parallelSum(long n) {
         return Stream.iterate(1L, i -> i + 1)

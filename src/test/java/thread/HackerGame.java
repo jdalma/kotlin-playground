@@ -1,4 +1,4 @@
-package _udemy_Multithreading;
+package thread;
 
 public class HackerGame {
     public static final int MAX_PASSWORD = 9999;

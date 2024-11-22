@@ -1,4 +1,4 @@
-package _udemy_Multithreading;
+package thread;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,12 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static _udemy_Multithreading.HackerGame.MAX_PASSWORD;
+import static thread.HackerGame.MAX_PASSWORD;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ThreadTest {
 
     @Test
+    @DisplayName("자식 스레드 생성 후 실행")
     void thread() throws InterruptedException {
         Thread thread = new Thread(() -> System.out.println("now child thread before starting : " + Thread.currentThread().getName()));
 
@@ -27,6 +28,7 @@ public class ThreadTest {
     }
 
     @Test
+    @DisplayName("자식 스레드 생성 후 우선순위 지정")
     void setPriority() throws InterruptedException {
         Thread thread = new Thread(() -> {
             System.out.println("now child thread before starting : " + Thread.currentThread().getName());
@@ -48,6 +50,7 @@ public class ThreadTest {
     }
 
     @Test
+    @DisplayName("자식 스레드 예외 핸들링")
     void setExceptionHandler() throws InterruptedException {
         Thread thread = new Thread(() -> {
             throw new RuntimeException("자식 스레드에서 예외 발생");
@@ -94,6 +97,7 @@ public class ThreadTest {
     }
 
     @Test
+    @DisplayName("스레드 인터럽트")
     void interrupted() {
         Runnable blockingTask = () -> {
             try {
@@ -107,40 +111,18 @@ public class ThreadTest {
         Thread thread = new Thread(blockingTask);
         thread.start();
         thread.interrupt();
-    }
 
-    private record LongComputationTask(BigInteger base, BigInteger power) implements Runnable {
-        @Override
-        public void run() {
-            System.out.printf("%d^%d = %d\n", base, power, pow(base, power));
-        }
-
-        private BigInteger pow(BigInteger base, BigInteger power) {
-            BigInteger result = BigInteger.ONE;
-            for (BigInteger i = BigInteger.ZERO; i.compareTo(power) != 0; i = i.add(BigInteger.ONE)) {
-                if (Thread.currentThread().isInterrupted()) {
-                    System.out.println("Interrupted !!!");
-                    return BigInteger.ZERO;
-                }
-                result = result.multiply(base);
-            }
-            return result;
-        }
-    }
-
-    @Test
-    void interrupted2() {
         LongComputationTask longComputationTask = new LongComputationTask(
-            new BigInteger("200"),
-            new BigInteger("1000")
+                new BigInteger("2"),
+                new BigInteger("10")
         );
-
-        Thread thread = new Thread(longComputationTask);
-        thread.start();
-        thread.interrupt();
+        Thread thread2 = new Thread(longComputationTask);
+        thread2.start();
+        thread2.interrupt();
     }
 
     @Test
+    @DisplayName("데몬 스레드 지정")
     void daemonThread() {
         LongComputationTask longComputationTask = new LongComputationTask(
                 new BigInteger("200"),
@@ -153,6 +135,7 @@ public class ThreadTest {
     }
 
     @Test
+    @DisplayName("동기화 객체를 공유하여 메인 스레드가 자식 스레드 여러 개를 깨우는 방법")
     void sharedMonitor() {
         final Object monitor = new Object();
         final StateThread stateThread = new StateThread(monitor);
@@ -171,6 +154,7 @@ public class ThreadTest {
             System.out.println("Thread2 state (after 0.1 sec) = " + stateThread2.getState());
 
             synchronized (monitor) {
+                System.out.println("메인 스레드 동기화 블록 진입");
                 monitor.notifyAll();
             }
             System.out.println("Thread state (after notify) = " + stateThread.getState());
@@ -184,29 +168,5 @@ public class ThreadTest {
             throw new RuntimeException(e);
         }
     }
-}
 
-class StateThread extends Thread {
-    private final Object monitor;
-    StateThread(Object monitor) {
-        this.monitor = monitor;
-    }
-
-    @Override
-    public void run() {
-        try {
-            for (int i = 0; i < 10000; i++) {
-                String a = "a";
-            }
-            synchronized (monitor) {
-                // 이 monitor에 대한 주인이 된 후에 wait을 호출하면, 이 객체에 대한 잠금을 포기한다.
-                // 그렇기에 다른 곳에서 이 monitor의 주인이 될 수 있다.
-                monitor.wait();
-            }
-            System.out.println(super.getName() + " is notified " + System.currentTimeMillis());
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 }
