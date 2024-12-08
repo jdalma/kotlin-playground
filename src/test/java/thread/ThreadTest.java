@@ -155,6 +155,8 @@ public class ThreadTest {
 
             synchronized (monitor) {
                 System.out.println("메인 스레드 동기화 블록 진입");
+                // 해당 monitor 객체의 락을 사용한 임계영역 안에서 wait()을 호출한 후 기다리던 스레드들이 모두 깨어난다.
+                // 임계영역 안에서 깨어나더라도 로직을 실행하기 위해서는 락이 필요하므로 깨어난 스레드가 두 개 이상이라면 순차적으로 실행된다.
                 monitor.notifyAll();
             }
             System.out.println("Thread state (after notify) = " + stateThread.getState());

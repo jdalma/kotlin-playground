@@ -25,13 +25,13 @@ public class SynchronizedTest {
     }
 
     static class Account {
-        private volatile long balance;
+        private long balance;
 
         public Account(long balance) {
             this.balance = balance;
         }
 
-        public void withdraw(long amount) {
+        public synchronized void withdraw(long amount) {
             if (this.balance < amount) {
                 log("출금 실패 : " + amount);
                 return;
@@ -40,7 +40,7 @@ public class SynchronizedTest {
             this.balance -= amount;
         }
 
-        public synchronized long getBalance() {
+        public long getBalance() {
             return this.balance;
         }
     }

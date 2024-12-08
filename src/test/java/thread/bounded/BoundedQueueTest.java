@@ -11,7 +11,9 @@ public class BoundedQueueTest {
 
     @Test
     void boundedQueueV1() throws InterruptedException {
-        BoundedQueue queue = new BoundedQueueV1(2);
+//        BoundedQueue queue = new BoundedQueueV1(2);
+//        BoundedQueue queue = new BoundedQueueV5(2);
+        BoundedQueue queue = new BoundedQueueV6_1(2);
 
 //        producerFirst(queue);
         consumerFirst(queue);
