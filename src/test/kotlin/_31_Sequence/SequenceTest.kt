@@ -1,7 +1,9 @@
 package _31_Sequence
 
+import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.equals.shouldBeEqual
+import kotlinx.coroutines.coroutineScope
 import kotlin.system.measureTimeMillis
 
 class SequenceTest: StringSpec ({

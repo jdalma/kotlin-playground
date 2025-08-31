@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.8.0"
+    kotlin("jvm") version "2.0.20"
     application
 }
 
@@ -11,12 +11,12 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
     // https://mvnrepository.com/artifact/cglib/cglib
-    implementation("cglib:cglib:2.2.2")
+    implementation("cglib:cglib:3.3.0")
     testImplementation(kotlin("test"))
-    testImplementation("io.kotest:kotest-runner-junit5:5.6.1")
-    testImplementation("io.kotest:kotest-assertions-core:5.6.1")
+    testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
+    testImplementation("io.kotest:kotest-assertions-core:5.9.1")
     testImplementation("org.assertj:assertj-core:3.18.1")
     implementation(kotlin("stdlib-jdk8"))
 }
