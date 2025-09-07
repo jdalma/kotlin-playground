@@ -203,13 +203,13 @@ class NotificationService {
 
 ## 7. 선택 기준
 
-| 상황 | 사용할 방식 | 이유 |
-|------|------------|------|
-| 여러 API를 동시에 호출하고 모든 결과 필요 | `coroutineScope` | 구조화된 병렬 처리, 모든 결과 대기 |
-| 이메일 발송, 로그 기록 등 백그라운드 작업 | `CoroutineScope()` | Fire-and-forget, 독립적 생명주기 |
-| 에러 처리를 직접 하고 싶음 | `coroutineScope` | try-catch로 직접 처리 가능 |
-| 서로 다른 설정(Dispatcher, ExceptionHandler) | `CoroutineScope()` | 독립적 설정 관리 |
-| 테스트 환경에서 격리된 실행 | `coroutineScope` | 예측 가능한 완료 시점 |
+| 상황                                     | 사용할 방식             | 이유                        |
+|----------------------------------------|--------------------|---------------------------|
+| 여러 API를 동시에 호출하고 모든 결과 필요              | `coroutineScope`   | 구조화된 병렬 처리, 모든 결과 대기      |
+| 이메일 발송, 로그 기록 등 백그라운드 작업               | `CoroutineScope()` | Fire-and-forget, 독립적 생명주기 |
+| 에러 처리를 직접 하고 싶음                        | `coroutineScope`   | try-catch로 직접 처리 가능       |
+| 서로 다른 설정(Dispatcher, ExceptionHandler) | `CoroutineScope()` | 독립적 설정 관리                 |
+| 테스트 환경에서 격리된 실행                        | `coroutineScope`   | 예측 가능한 완료 시점              |
 
 ## 8. 핵심 원칙
 

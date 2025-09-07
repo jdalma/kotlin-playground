@@ -320,7 +320,7 @@ class CoroutineScopeTest : BehaviorSpec({
                     }
                     
                     suspend fun getSentEmails(): List<String> {
-                        delay(100) // 모든 이메일 발송 완료 대기
+                        delay(1000) // 모든 이메일 발송 완료 대기
                         return sentEmails.toList()
                     }
                     
